@@ -86,18 +86,16 @@
   <!-- CONTAINER UTAMA -->
   <main class="max-w-md mx-auto p-3.5 space-y-3.5">
 
-    <!-- Panduan jika masih dibuka dari dalam WhatsApp Preview / File Lokal -->
     <div id="wa-browser-warning" class="hidden bg-indigo-900 text-white rounded-2xl p-3.5 text-xs space-y-1.5 shadow-md">
       <div class="flex justify-between items-center">
         <span class="font-extrabold text-amber-300">📲 Cara Pasang Aplikasi "Kasir" Full-Screen</span>
         <button onclick="document.getElementById('wa-browser-warning').classList.add('hidden')" class="text-white/70 font-bold text-base leading-none">&times;</button>
       </div>
       <p class="text-[11px] text-indigo-100 leading-relaxed">
-        Saat ini Anda membuka file secara lokal. Agar berubah menjadi aplikasi <b>"Kasir"</b> tanpa bar browser & Bluetooth aktif: Upload file ini ke <b>tiiny.host</b> lalu buka link-nya di <b>Google Chrome</b> dan pilih <b>"Tambahkan ke Layar Utama"</b>.
+        Buka link GitHub Pages Anda di <b>Google Chrome</b>, lalu ketuk menu Titik Tiga (⋮) dan pilih <b>"Tambahkan ke Layar Utama"</b> agar aplikasi "Kasir" terpasang penuh seperti aplikasi Android asli.
       </p>
     </div>
 
-    <!-- Banner Alert Setup -->
     <div id="setup-alert" onclick="switchTab('qris')" class="hidden bg-amber-50 border border-amber-300 rounded-2xl p-3 flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition">
       <div class="flex items-center gap-2.5">
         <span class="text-xl">📲</span>
@@ -109,18 +107,22 @@
       <span class="text-amber-800 font-bold text-sm">➔</span>
     </div>
 
-    <!-- TAB 1: KATALOG PRODUK -->
+    <!-- ========================================== -->
+    <!-- TAB 1: KATALOG PRODUK                      -->
+    <!-- ========================================== -->
     <section id="view-pos" class="space-y-3">
       <div class="flex gap-2">
         <input type="text" id="search-input" oninput="renderProducts()" placeholder="🔍 Cari menu / produk..." class="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
-        <button onclick="openProductModal()" class="bg-sky-600 active:bg-sky-700 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs shadow-sm shrink-0">
-          + Menu
+        <button onclick="openProductModal()" class="bg-sky-600 active:bg-sky-700 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs shadow-sm shrink-0 flex items-center gap-1">
+          <span>✏️ Edit Menu</span>
         </button>
       </div>
       <div id="product-grid" class="grid grid-cols-2 gap-2.5"></div>
     </section>
 
-    <!-- TAB 2: KEYPAD NOMINAL CEPAT -->
+    <!-- ========================================== -->
+    <!-- TAB 2: KEYPAD NOMINAL CEPAT                -->
+    <!-- ========================================== -->
     <section id="view-keypad" class="hidden space-y-3">
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 text-right">
         <span class="text-xs font-semibold text-slate-400 block">Input Nominal Tagihan Cepat</span>
@@ -153,7 +155,9 @@
       </div>
     </section>
 
-    <!-- TAB 3: LAPORAN OMZET, TOP MENU & EXCEL -->
+    <!-- ========================================== -->
+    <!-- TAB 3: LAPORAN OMZET, TOP MENU & EXCEL     -->
+    <!-- ========================================== -->
     <section id="view-history" class="hidden space-y-4">
       <div class="bg-gradient-to-br from-sky-600 to-sky-700 text-white p-4 rounded-2xl shadow-md space-y-3">
         <div class="flex justify-between items-start">
@@ -205,7 +209,9 @@
       </div>
     </section>
 
-    <!-- TAB 4: SETUP STRUK, PRINTER & QRIS -->
+    <!-- ========================================== -->
+    <!-- TAB 4: SETUP STRUK, PRINTER & QRIS         -->
+    <!-- ========================================== -->
     <section id="view-qris" class="hidden space-y-4">
 
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3.5">
@@ -347,6 +353,70 @@
     </div>
   </nav>
 
+  <!-- ====================================================== -->
+  <!-- MODAL KELOLA / EDIT MENU (TAMBAH, EDIT HARGA, HAPUS)   -->
+  <!-- ====================================================== -->
+  <div id="product-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs hidden items-center justify-center z-50 p-3">
+    <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+      
+      <!-- Header Modal Edit Menu -->
+      <div class="bg-sky-600 text-white px-4 py-3.5 flex justify-between items-center">
+        <div>
+          <h3 class="font-extrabold text-sm">✏️ Kelola & Edit Menu</h3>
+          <p class="text-[10px] text-sky-100">Tambah menu baru, ubah harga, atau hapus menu lama</p>
+        </div>
+        <button onclick="closeProductModal()" class="w-8 h-8 rounded-full bg-white/20 text-white font-bold text-lg leading-none flex items-center justify-center">&times;</button>
+      </div>
+
+      <!-- Konten Scrollable -->
+      <div class="p-4 overflow-y-auto flex-1 space-y-4 bg-slate-50">
+        
+        <!-- Bagian 1: Form Tambah Menu Baru -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <h4 class="font-extrabold text-xs text-sky-700 uppercase tracking-wider">+ Tambah Menu Baru</h4>
+          <div class="space-y-2.5">
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 block mb-1">Nama Menu / Produk</label>
+              <input type="text" id="new-prod-name" placeholder="Contoh: Es Kopi Susu" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-slate-600 block mb-1">Harga (Rp)</label>
+              <div class="relative flex items-center">
+                <span class="absolute left-3 text-xs font-extrabold text-slate-400">Rp</span>
+                <input type="text" inputmode="numeric" id="new-prod-price-formatted" oninput="formatPriceInput(this)" placeholder="15.000" class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-extrabold text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500">
+              </div>
+              <input type="hidden" id="new-prod-price" value="0">
+            </div>
+            <button onclick="saveNewProduct()" class="w-full py-2.5 bg-sky-600 active:bg-sky-700 text-white font-extrabold text-xs rounded-xl shadow-xs transition">
+              + Tambahkan ke Daftar Menu
+            </button>
+          </div>
+        </div>
+
+        <!-- Bagian 2: Daftar Menu yang Ada (Edit Harga / Nama / Hapus) -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
+          <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+            <div>
+              <h4 class="font-extrabold text-xs text-slate-800">📋 Daftar Menu Saat Ini</h4>
+              <p class="text-[10px] text-slate-400">Ubah harga/nama langsung di bawah, otomatis tersimpan</p>
+            </div>
+            <span id="manage-menu-count" class="bg-slate-100 text-slate-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full">0 Menu</span>
+          </div>
+
+          <div id="manage-product-list" class="divide-y divide-slate-100 space-y-2.5 max-h-[42vh] overflow-y-auto pr-1"></div>
+        </div>
+
+      </div>
+
+      <!-- Footer Modal -->
+      <div class="p-3 bg-white border-t border-slate-200">
+        <button onclick="closeProductModal()" class="w-full py-2.5 rounded-xl bg-slate-800 active:bg-slate-900 text-white font-extrabold text-xs">
+          Selesai & Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- LAMAN PENUH 1: RINCIAN PESANAN & PILIH METODE BAYAR -->
   <div id="order-review-page" class="fixed inset-0 bg-slate-100 z-40 hidden flex-col">
     <div class="bg-white border-b border-slate-200 px-4 py-3.5 sticky top-0 z-10 shadow-2xs">
@@ -436,7 +506,11 @@
 
         <div class="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 shadow-xs">
           <label class="text-xs font-extrabold text-slate-700 block">Nominal Uang Tunai Diterima (Rp):</label>
-          <input type="number" id="cash-received-input" oninput="calculateCashChange()" placeholder="Ketik uang diterima..." class="w-full px-4 py-3 text-xl font-black text-slate-800 bg-slate-50 border-2 border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500">
+          <div class="relative flex items-center">
+            <span class="absolute left-4 text-lg font-black text-slate-400">Rp</span>
+            <input type="text" inputmode="numeric" id="cash-received-formatted" oninput="handleCashInputFormatted(this)" placeholder="Ketik uang diterima..." class="w-full pl-12 pr-4 py-3 text-xl font-black text-slate-800 bg-slate-50 border-2 border-slate-300 rounded-xl focus:outline-none focus:border-emerald-500">
+          </div>
+          <input type="hidden" id="cash-received-input" value="0">
 
           <div>
             <span class="text-[11px] font-semibold text-slate-400 block mb-1.5">Pilih Cepat Nominal Uang:</span>
@@ -699,54 +773,47 @@
     </div>
   </div>
 
-  <!-- MODAL TAMBAH MENU BARU -->
-  <div id="product-modal" class="fixed inset-0 bg-slate-900/60 hidden items-center justify-center z-50 p-4">
-    <div class="bg-white rounded-2xl max-w-xs w-full p-4 space-y-3 shadow-xl">
-      <h3 class="font-extrabold text-base text-slate-800">Tambah Produk / Menu</h3>
-      <input type="text" id="new-prod-name" placeholder="Nama Menu (misal: Kopi Susu)" class="w-full px-3 py-2.5 border rounded-xl text-sm">
-      <input type="number" id="new-prod-price" placeholder="Harga (misal: 15000)" class="w-full px-3 py-2.5 border rounded-xl text-sm">
-      <div class="flex justify-end gap-2 pt-1">
-        <button onclick="closeProductModal()" class="px-4 py-2 text-xs font-bold text-slate-500">Batal</button>
-        <button onclick="saveNewProduct()" class="px-4 py-2 text-xs font-bold bg-sky-600 text-white rounded-xl">Simpan</button>
-      </div>
-    </div>
-  </div>
-
   <canvas id="qr-reader-canvas" class="hidden"></canvas>
   <canvas id="printer-bitmap-canvas" class="hidden"></canvas>
 
   <script>
     // =========================================================================
-    // 0. KONFIGURASI PWA STANDALONE DENGAN NAMA APLIKASI: "Kasir"
+    // 0. KONFIGURASI PWA & FORMAT RUPIAH OTOMATIS DENGAN TITIK RIBUAN
     // =========================================================================
-    let deferredPrompt = null;
+    function formatPriceInput(input) {
+      let cleanVal = input.value.replace(/\D/g, '');
+      let num = parseInt(cleanVal) || 0;
+      document.getElementById('new-prod-price').value = num;
+      input.value = num > 0 ? num.toLocaleString('id-ID') : '';
+    }
 
+    function handleCashInputFormatted(input) {
+      let cleanVal = input.value.replace(/\D/g, '');
+      let num = parseInt(cleanVal) || 0;
+      document.getElementById('cash-received-input').value = num;
+      input.value = num > 0 ? num.toLocaleString('id-ID') : '';
+      calculateCashChange();
+    }
+
+    let deferredPrompt = null;
     function setupProgressiveWebApp() {
-      // Buat Ikon Aplikasi "Kasir" (512x512) secara otomatis menggunakan Canvas
       const iconCanvas = document.createElement('canvas');
       iconCanvas.width = 512;
       iconCanvas.height = 512;
       const ctx = iconCanvas.getContext('2d');
-
-      // Latar Biru Modern
       ctx.fillStyle = '#0284c7';
       ctx.beginPath();
       ctx.roundRect(0, 0, 512, 512, 115);
       ctx.fill();
-
-      // Aksen Kotak Putih di Atas
       ctx.fillStyle = '#ffffff';
       ctx.font = '900 135px sans-serif';
       ctx.textAlign = 'center';
       ctx.fillText('KASIR', 256, 265);
-
       ctx.font = '700 60px sans-serif';
       ctx.fillStyle = '#bae6fd';
       ctx.fillText('QRIS POS', 256, 365);
-
       const iconUrl = iconCanvas.toDataURL('image/png');
 
-      // Pasang Ikon ke Head HTML
       const linkIcon = document.createElement('link');
       linkIcon.rel = 'apple-touch-icon';
       linkIcon.href = iconUrl;
@@ -758,7 +825,6 @@
       favIcon.href = iconUrl;
       document.head.appendChild(favIcon);
 
-      // Buat Web Manifest Dinamis dengan nama "Kasir"
       const manifest = {
         name: 'Kasir',
         short_name: 'Kasir',
@@ -779,18 +845,11 @@
       manifestLink.href = URL.createObjectURL(manifestBlob);
       document.head.appendChild(manifestLink);
 
-      // Daftarkan Service Worker agar Android mengenali sebagai PWA penuh (Installable)
       if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost')) {
-        const swCode = `
-          self.addEventListener('install', (e) => self.skipWaiting());
-          self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-          self.addEventListener('fetch', (e) => {});
-        `;
-        const swBlob = new Blob([swCode], { type: 'application/javascript' });
-        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+        const swCode = `self.addEventListener('install', e => self.skipWaiting()); self.addEventListener('activate', e => e.waitUntil(self.clients.claim())); self.addEventListener('fetch', e => {});`;
+        navigator.serviceWorker.register(URL.createObjectURL(new Blob([swCode], { type: 'application/javascript' }))).catch(() => {});
       }
 
-      // Deteksi jika masih dibuka via content:// (WhatsApp) atau file://
       if (window.location.protocol === 'content:' || window.location.protocol === 'file:') {
         document.getElementById('wa-browser-warning').classList.remove('hidden');
       }
@@ -804,19 +863,17 @@
 
     async function installPWA() {
       if (!deferredPrompt) {
-        alert('Ketuk ikon Titik Tiga (⋮) di pojok kanan atas browser Chrome Anda, lalu pilih "Tambahkan ke Layar Utama" atau "Install Aplikasi".');
+        alert('Ketuk ikon Titik Tiga (⋮) di pojok kanan atas browser Chrome Anda, lalu pilih "Tambahkan ke Layar Utama".');
         return;
       }
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
-      if (outcome === 'accepted') {
-        document.getElementById('pwa-install-btn').classList.add('hidden');
-      }
+      if (outcome === 'accepted') document.getElementById('pwa-install-btn').classList.add('hidden');
       deferredPrompt = null;
     }
 
     // =========================================================================
-    // 1. STATE & DATA PENYIMPANAN LOKAL HP (DENGAN PAYLOAD ASLI QRIS ANDRI)
+    // 1. STATE & DATA PENYIMPANAN LOKAL HP
     // =========================================================================
     const DEFAULT_ANDRI_QRIS = "00020101021126610014COM.GO-JEK.WWW01189360091436462187680210G6462187680303UMI51440014ID.CO.QRIS.WWW0215ID10254187806030303UMI5204804153033605802ID5910Qris Andri6008SIDOARJO61056123462070703A0163043275";
 
@@ -852,7 +909,7 @@
     }
 
     // =========================================================================
-    // 2. KUSTOMISASI TEMPLATE STRUK & UPLOAD FOTO/LOGO
+    // 2. KUSTOMISASI STRUK & LOGO
     // =========================================================================
     function handleLogoUpload(event) {
       const file = event.target.files[0];
@@ -873,17 +930,14 @@
       img.onload = function() {
         const canvas = document.createElement('canvas');
         const maxDim = 240;
-        let w = img.width;
-        let h = img.height;
+        let w = img.width, h = img.height;
         if (w > maxDim || h > maxDim) {
           if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
           else { w = Math.round((w * maxDim) / h); h = maxDim; }
         }
-        canvas.width = w;
-        canvas.height = h;
+        canvas.width = w; canvas.height = h;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
         callback(canvas.toDataURL('image/png'));
       };
@@ -901,15 +955,9 @@
       const placeholder = document.getElementById('logo-placeholder');
       const removeBtn = document.getElementById('btn-remove-logo');
       if (storeLogo) {
-        img.src = storeLogo;
-        img.classList.remove('hidden');
-        placeholder.classList.add('hidden');
-        removeBtn.classList.remove('hidden');
+        img.src = storeLogo; img.classList.remove('hidden'); placeholder.classList.add('hidden'); removeBtn.classList.remove('hidden');
       } else {
-        img.src = '';
-        img.classList.add('hidden');
-        placeholder.classList.remove('hidden');
-        removeBtn.classList.add('hidden');
+        img.src = ''; img.classList.add('hidden'); placeholder.classList.remove('hidden'); removeBtn.classList.add('hidden');
       }
     }
 
@@ -931,7 +979,7 @@
     }
 
     // =========================================================================
-    // 3. EDITOR STRUK TRANSAKSI INDIVIDUAL
+    // 3. EDITOR STRUK & BLUETOOTH PRINTER
     // =========================================================================
     function toggleReceiptEditor() {
       const panel = document.getElementById('receipt-editor-panel');
@@ -1000,23 +1048,15 @@
       const shouldShowLogo = trx.showLogo !== undefined ? trx.showLogo : true;
 
       if (activeLogo && shouldShowLogo) {
-        logoImg.src = activeLogo;
-        logoContainer.classList.remove('hidden');
-        logoContainer.classList.add('flex');
+        logoImg.src = activeLogo; logoContainer.classList.remove('hidden'); logoContainer.classList.add('flex');
       } else {
-        logoContainer.classList.add('hidden');
-        logoContainer.classList.remove('flex');
+        logoContainer.classList.add('hidden'); logoContainer.classList.remove('flex');
       }
 
       document.getElementById('receipt-store-name').textContent = storeName || 'QRIS ANDRI';
       const descText = trx.customDesc !== undefined ? trx.customDesc : storeDesc;
       const descEl = document.getElementById('receipt-store-desc');
-      if (descText) {
-        descEl.textContent = descText;
-        descEl.classList.remove('hidden');
-      } else {
-        descEl.classList.add('hidden');
-      }
+      if (descText) { descEl.textContent = descText; descEl.classList.remove('hidden'); } else { descEl.classList.add('hidden'); }
       document.getElementById('receipt-store-address').textContent = storeAddress || 'NMID: ID1025418780603 • A01';
 
       document.getElementById('receipt-id').textContent = trx.id;
@@ -1024,62 +1064,37 @@
 
       const custName = trx.customer !== undefined ? trx.customer : storeCashier;
       const custRow = document.getElementById('receipt-customer-row');
-      if (custName) {
-        custRow.classList.remove('hidden');
-        document.getElementById('receipt-customer').textContent = custName;
-      } else {
-        custRow.classList.add('hidden');
-      }
+      if (custName) { custRow.classList.remove('hidden'); document.getElementById('receipt-customer').textContent = custName; } else { custRow.classList.add('hidden'); }
 
       document.getElementById('receipt-method').textContent = trx.method;
 
       const itemsContainer = document.getElementById('receipt-items');
       itemsContainer.innerHTML = '';
-      const details = trx.itemDetails || [{ name: trx.items, qty: 1, price: trx.total }];
-      details.forEach(item => {
+      (trx.itemDetails || [{ name: trx.items, qty: 1, price: trx.total }]).forEach(item => {
         const div = document.createElement('div');
-        div.innerHTML = `
-          <div class="font-bold">${item.name}</div>
-          <div class="flex justify-between text-slate-600">
-            <span>${item.qty} x ${Number(item.price).toLocaleString('id-ID')}</span>
-            <span>${Number(item.qty * item.price).toLocaleString('id-ID')}</span>
-          </div>
-        `;
+        div.innerHTML = `<div class="font-bold">${item.name}</div><div class="flex justify-between text-slate-600"><span>${item.qty} x ${Number(item.price).toLocaleString('id-ID')}</span><span>${Number(item.qty * item.price).toLocaleString('id-ID')}</span></div>`;
         itemsContainer.appendChild(div);
       });
 
       const taxRow = document.getElementById('receipt-tax-row');
-      if (trx.tax && trx.tax > 0) {
-        taxRow.classList.remove('hidden');
-        document.getElementById('receipt-tax').textContent = formatRupiah(trx.tax);
-      } else {
-        taxRow.classList.add('hidden');
-      }
+      if (trx.tax && trx.tax > 0) { taxRow.classList.remove('hidden'); document.getElementById('receipt-tax').textContent = formatRupiah(trx.tax); } else { taxRow.classList.add('hidden'); }
       document.getElementById('receipt-total').textContent = formatRupiah(trx.total);
 
       const cashRow = document.getElementById('receipt-cash-row');
       const changeRow = document.getElementById('receipt-change-row');
       if (trx.cashReceived !== undefined && trx.cashReceived !== null) {
-        cashRow.classList.remove('hidden');
-        changeRow.classList.remove('hidden');
+        cashRow.classList.remove('hidden'); changeRow.classList.remove('hidden');
         document.getElementById('receipt-cash-paid').textContent = formatRupiah(trx.cashReceived);
         document.getElementById('receipt-cash-change').textContent = formatRupiah(trx.cashChange || 0);
       } else {
-        cashRow.classList.add('hidden');
-        changeRow.classList.add('hidden');
+        cashRow.classList.add('hidden'); changeRow.classList.add('hidden');
       }
 
       const noteBox = document.getElementById('receipt-note-box');
       const noteText = document.getElementById('receipt-note-text');
-      if (trx.note && trx.note.trim() !== '') {
-        noteBox.classList.remove('hidden');
-        noteText.textContent = trx.note;
-      } else {
-        noteBox.classList.add('hidden');
-      }
+      if (trx.note && trx.note.trim() !== '') { noteBox.classList.remove('hidden'); noteText.textContent = trx.note; } else { noteBox.classList.add('hidden'); }
 
-      const footerVal = trx.customFooter !== undefined ? trx.customFooter : storeFooter;
-      document.getElementById('receipt-footer-text').textContent = footerVal || 'Terima kasih atas kunjungan Anda!';
+      document.getElementById('receipt-footer-text').textContent = (trx.customFooter !== undefined ? trx.customFooter : storeFooter) || 'Terima kasih atas kunjungan Anda!';
     }
 
     function closeReceiptModal() {
@@ -1091,9 +1106,6 @@
       btn.className = 'bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition';
     }
 
-    // =========================================================================
-    // 4. KONVERSI FOTO/LOGO KE BITMAP (GS v 0) UNTUK PRINTER BLUETOOTH
-    // =========================================================================
     function imageToEscPosRasterBytes(dataUrl, maxWidthPx = 200) {
       return new Promise((resolve) => {
         const img = new Image();
@@ -1101,13 +1113,10 @@
           const canvas = document.getElementById('printer-bitmap-canvas');
           const ctx = canvas.getContext('2d');
           let w = Math.min(img.width, maxWidthPx);
-          w = Math.floor(w / 8) * 8;
-          if (w < 8) w = 8;
+          w = Math.floor(w / 8) * 8; if (w < 8) w = 8;
           const h = Math.round((img.height * w) / img.width);
-          canvas.width = w;
-          canvas.height = h;
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(0, 0, w, h);
+          canvas.width = w; canvas.height = h;
+          ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, w, h);
           ctx.drawImage(img, 0, 0, w, h);
 
           const imgData = ctx.getImageData(0, 0, w, h).data;
@@ -1127,13 +1136,9 @@
             }
           }
 
-          const header = new Uint8Array([
-            0x1B, 0x61, 0x01,
-            0x1D, 0x76, 0x30, 0x00, bytesPerRow & 0xFF, (bytesPerRow >> 8) & 0xFF, h & 0xFF, (h >> 8) & 0xFF
-          ]);
+          const header = new Uint8Array([0x1B, 0x61, 0x01, 0x1D, 0x76, 0x30, 0x00, bytesPerRow & 0xFF, (bytesPerRow >> 8) & 0xFF, h & 0xFF, (h >> 8) & 0xFF]);
           const combined = new Uint8Array(header.length + rasterData.length);
-          combined.set(header, 0);
-          combined.set(rasterData, header.length);
+          combined.set(header, 0); combined.set(rasterData, header.length);
           resolve(combined);
         };
         img.onerror = () => resolve(null);
@@ -1141,24 +1146,12 @@
       });
     }
 
-    // =========================================================================
-    // 5. KONEKSI & CETAK PRINTER THERMAL BLUETOOTH (ESC/POS 58MM)
-    // =========================================================================
     async function connectBluetoothPrinter() {
-      if (!navigator.bluetooth) {
-        alert('Gunakan browser Google Chrome di HP Android untuk menyambungkan Printer Bluetooth.');
-        return;
-      }
+      if (!navigator.bluetooth) { alert('Gunakan browser Google Chrome di HP Android untuk menyambungkan Printer Bluetooth.'); return; }
       try {
         const device = await navigator.bluetooth.requestDevice({
           acceptAllDevices: true,
-          optionalServices: [
-            '000018f0-0000-1000-8000-00805f9b34fb',
-            'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
-            '49535343-fe7d-4ae5-8fa9-9fafd205e455',
-            '0000ff00-0000-1000-8000-00805f9b34fb',
-            '0000ffe0-0000-1000-8000-00805f9b34fb'
-          ]
+          optionalServices: ['000018f0-0000-1000-8000-00805f9b34fb', 'e7810a71-73ae-499d-8c15-faa9aef0c3f2', '49535343-fe7d-4ae5-8fa9-9fafd205e455', '0000ff00-0000-1000-8000-00805f9b34fb', '0000ffe0-0000-1000-8000-00805f9b34fb']
         });
         btDevice = device;
         btDevice.addEventListener('gattserverdisconnected', onPrinterDisconnected);
@@ -1167,12 +1160,9 @@
 
         let foundChar = null;
         for (const service of services) {
-          const characteristics = await service.getCharacteristics();
-          for (const char of characteristics) {
-            if (char.properties.write || char.properties.writeWithoutResponse) {
-              foundChar = char;
-              break;
-            }
+          const chars = await service.getCharacteristics();
+          for (const char of chars) {
+            if (char.properties.write || char.properties.writeWithoutResponse) { foundChar = char; break; }
           }
           if (foundChar) break;
         }
@@ -1185,22 +1175,17 @@
       }
     }
 
-    function onPrinterDisconnected() {
-      btCharacteristic = null;
-      updatePrinterStatusUI(false);
-    }
+    function onPrinterDisconnected() { btCharacteristic = null; updatePrinterStatusUI(false); }
 
     function updatePrinterStatusUI(connected, name = '') {
       const dot = document.getElementById('bt-dot');
       const txt = document.getElementById('bt-status-text');
       const label = document.getElementById('printer-name-label');
       if (connected) {
-        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-        txt.textContent = '🖨️ Aktif';
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400'; txt.textContent = '🖨️ Aktif';
         if (label) label.textContent = `Status: Terhubung ke ${name}`;
       } else {
-        dot.className = 'w-2 h-2 rounded-full bg-slate-300';
-        txt.textContent = '🖨️ Printer';
+        dot.className = 'w-2 h-2 rounded-full bg-slate-300'; txt.textContent = '🖨️ Printer';
         if (label) label.textContent = 'Status: Belum Terhubung';
       }
     }
@@ -1224,60 +1209,40 @@
 
     async function printCurrentReceiptBluetooth() {
       if (!activeReceiptTrx) return;
-      if (!btCharacteristic) {
-        await connectBluetoothPrinter();
-        if (!btCharacteristic) return;
-      }
+      if (!btCharacteristic) { await connectBluetoothPrinter(); if (!btCharacteristic) return; }
       try {
         const trx = activeReceiptTrx;
         const encoder = new TextEncoder();
         const ESC = '\x1B';
-
         await sendEscPosBytes(encoder.encode(ESC + '@'));
 
         const activeLogo = trx.customLogo || storeLogo;
-        const shouldShowLogo = trx.showLogo !== undefined ? trx.showLogo : true;
-        if (activeLogo && shouldShowLogo) {
+        if (activeLogo && (trx.showLogo !== false)) {
           const logoBytes = await imageToEscPosRasterBytes(activeLogo, 184);
-          if (logoBytes) {
-            await sendEscPosBytes(logoBytes);
-            await sendEscPosBytes(encoder.encode('\n'));
-          }
+          if (logoBytes) { await sendEscPosBytes(logoBytes); await sendEscPosBytes(encoder.encode('\n')); }
         }
 
-        const descText = trx.customDesc !== undefined ? trx.customDesc : storeDesc;
-        const custName = trx.customer !== undefined ? trx.customer : storeCashier;
-        const footerVal = trx.customFooter !== undefined ? trx.customFooter : storeFooter;
-
         let receiptText = '';
-        receiptText += ESC + 'a' + '\x01';
-        receiptText += ESC + '!' + '\x10';
-        receiptText += (storeName || 'QRIS ANDRI') + '\n';
-        receiptText += ESC + '!' + '\x00';
-        if (descText) receiptText += descText + '\n';
+        receiptText += ESC + 'a' + '\x01' + ESC + '!' + '\x10' + (storeName || 'QRIS ANDRI') + '\n' + ESC + '!' + '\x00';
+        if (storeDesc) receiptText += storeDesc + '\n';
         if (storeAddress) receiptText += storeAddress + '\n';
         receiptText += '--------------------------------\n';
 
         receiptText += ESC + 'a' + '\x00';
         receiptText += formatLine58mm('No Struk:', trx.id || '-');
         receiptText += formatLine58mm('Tanggal:', `${trx.date || ''} ${trx.time || ''}`.trim());
-        if (custName) receiptText += formatLine58mm('Kasir/Plg:', custName);
+        if (storeCashier) receiptText += formatLine58mm('Kasir/Plg:', storeCashier);
         receiptText += formatLine58mm('Metode:', trx.method || '-');
         receiptText += '--------------------------------\n';
 
         (trx.itemDetails || []).forEach(item => {
           receiptText += `${item.name}\n`;
-          const qtyPrice = `  ${item.qty} x ${Number(item.price).toLocaleString('id-ID')}`;
-          const sub = Number(item.qty * item.price).toLocaleString('id-ID');
-          receiptText += formatLine58mm(qtyPrice, sub);
+          receiptText += formatLine58mm(`  ${item.qty} x ${Number(item.price).toLocaleString('id-ID')}`, Number(item.qty * item.price).toLocaleString('id-ID'));
         });
 
         receiptText += '--------------------------------\n';
         if (trx.tax && trx.tax > 0) receiptText += formatLine58mm('PPN (11%)', 'Rp ' + Number(trx.tax).toLocaleString('id-ID'));
-
-        receiptText += ESC + '!' + '\x08';
-        receiptText += formatLine58mm('TOTAL', 'Rp ' + Number(trx.total).toLocaleString('id-ID'));
-        receiptText += ESC + '!' + '\x00';
+        receiptText += ESC + '!' + '\x08' + formatLine58mm('TOTAL', 'Rp ' + Number(trx.total).toLocaleString('id-ID')) + ESC + '!' + '\x00';
 
         if (trx.cashReceived !== undefined && trx.cashReceived !== null) {
           receiptText += formatLine58mm('TUNAI', 'Rp ' + Number(trx.cashReceived).toLocaleString('id-ID'));
@@ -1285,36 +1250,23 @@
         }
         receiptText += '--------------------------------\n';
 
-        if (trx.note && trx.note.trim() !== '') {
-          receiptText += 'Catatan: ' + trx.note.trim() + '\n';
-          receiptText += '--------------------------------\n';
-        }
+        if (trx.note && trx.note.trim() !== '') receiptText += 'Catatan: ' + trx.note.trim() + '\n--------------------------------\n';
 
-        receiptText += ESC + 'a' + '\x01';
-        receiptText += (footerVal || 'Terima kasih atas kunjungan Anda!') + '\n\n\n\n';
-
+        receiptText += ESC + 'a' + '\x01' + (storeFooter || 'Terima kasih atas kunjungan Anda!') + '\n\n\n\n';
         await sendEscPosBytes(encoder.encode(receiptText));
-      } catch (err) {
-        alert('Gagal mencetak ke printer Bluetooth: ' + err.message);
-      }
+      } catch (err) { alert('Gagal mencetak ke printer Bluetooth: ' + err.message); }
     }
 
     function testPrintBluetooth() {
       openReceiptModal({
-        id: 'TEST-001',
-        date: new Date().toLocaleDateString('id-ID'),
-        time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-        customer: storeCashier || 'Andri',
-        method: 'QRIS GoPay',
-        itemDetails: [{ name: 'Contoh Produk / Menu', qty: 1, price: 15000 }],
-        tax: 0,
-        total: 15000,
-        note: 'Contoh deskripsi atau catatan pesanan pelanggan.'
+        id: 'TEST-001', date: new Date().toLocaleDateString('id-ID'), time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        customer: storeCashier || 'Andri', method: 'QRIS GoPay', itemDetails: [{ name: 'Contoh Produk / Menu', qty: 1, price: 15000 }],
+        tax: 0, total: 15000, note: 'Contoh deskripsi atau catatan pesanan pelanggan.'
       });
     }
 
     // =========================================================================
-    // 6. FITUR EXPORT LAPORAN PENJUALAN KE EXCEL (.XLSX)
+    // 4. EXPORT EXCEL & QRIS EMVCo
     // =========================================================================
     function autoFitColumns(worksheet, aoaData) {
       const colWidths = [];
@@ -1330,102 +1282,57 @@
     }
 
     function exportToExcel() {
-      if (transactions.length === 0) {
-        alert('Belum ada data transaksi penjualan untuk diekspor ke Excel!');
-        return;
-      }
-      if (typeof XLSX === 'undefined') {
-        alert('Library Excel belum termuat. Pastikan HP Anda terhubung ke internet.');
-        return;
-      }
+      if (transactions.length === 0) { alert('Belum ada data transaksi penjualan untuk diekspor ke Excel!'); return; }
+      if (typeof XLSX === 'undefined') { alert('Library Excel belum termuat.'); return; }
 
       let totalOmzet = 0, totalSubtotal = 0, totalTax = 0, omzetQris = 0, trxQrisCount = 0, omzetCash = 0, trxCashCount = 0, totalItemsSold = 0;
       const productStats = {};
 
       transactions.forEach(t => {
-        const sub = t.subtotal !== undefined ? t.subtotal : (t.total - (t.tax || 0));
-        const tx = t.tax || 0;
-        totalSubtotal += sub;
-        totalTax += tx;
-        totalOmzet += t.total;
-
-        if (t.method && t.method.toLowerCase().includes('qris')) { omzetQris += t.total; trxQrisCount += 1; }
-        else { omzetCash += t.total; trxCashCount += 1; }
+        totalSubtotal += (t.subtotal !== undefined ? t.subtotal : (t.total - (t.tax || 0)));
+        totalTax += (t.tax || 0); totalOmzet += t.total;
+        if (t.method && t.method.toLowerCase().includes('qris')) { omzetQris += t.total; trxQrisCount++; }
+        else { omzetCash += t.total; trxCashCount++; }
 
         if (Array.isArray(t.itemDetails)) {
           t.itemDetails.forEach(item => {
             if (!productStats[item.name]) productStats[item.name] = { name: item.name, price: item.price, qty: 0, revenue: 0 };
-            productStats[item.name].qty += item.qty;
-            productStats[item.name].revenue += item.qty * item.price;
+            productStats[item.name].qty += item.qty; productStats[item.name].revenue += item.qty * item.price;
             totalItemsSold += item.qty;
           });
         }
       });
 
       const now = new Date();
-      const dateStamp = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
-      const timeStamp = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-
       const summaryAOA = [
         [`LAPORAN PENJUALAN & OMZET KASIR - ${storeName}`],
-        ['Identitas Merchant', `${storeName} (GoPay Merchant)`],
-        ['Deskripsi Usaha', storeDesc || '-'],
-        ['NMID / Terminal', 'ID1025418780603 / A01'],
-        ['Waktu Unduh Laporan', `${dateStamp} Pukul ${timeStamp}`],
-        [],
-        ['KATEGORI RINGKASAN', 'JUMLAH TRANSAKSI / PORSI', 'NILAI RUPIAH (Rp)'],
+        ['Identitas Merchant', `${storeName} (GoPay Merchant)`], ['Deskripsi Usaha', storeDesc || '-'], ['NMID / Terminal', 'ID1025418780603 / A01'], [],
+        ['KATEGORI RINGKASAN', 'JUMLAH TRANSAKSI', 'NILAI RUPIAH (Rp)'],
         ['Pembayaran via QRIS GoPay', `${trxQrisCount} Transaksi`, omzetQris],
         ['Pembayaran via Tunai (Cash)', `${trxCashCount} Transaksi`, omzetCash],
-        ['Total Porsi / Item Terjual', `${totalItemsSold} Item`, '-'],
-        ['Total Penjualan Bersih (Subtotal)', `${transactions.length} Transaksi`, totalSubtotal],
-        ['Total Pajak PPN (11%)', '-', totalTax],
+        ['Total Porsi Terjual', `${totalItemsSold} Item`, '-'],
         ['GRAND TOTAL OMZET', `${transactions.length} Transaksi`, totalOmzet]
       ];
-      const wsSummary = XLSX.utils.aoa_to_sheet(summaryAOA);
-      autoFitColumns(wsSummary, summaryAOA);
+      const wsSummary = XLSX.utils.aoa_to_sheet(summaryAOA); autoFitColumns(wsSummary, summaryAOA);
 
       const sortedMenus = Object.values(productStats).sort((a, b) => b.qty - a.qty);
-      const topMenuAOA = [
-        [`PERINGKAT MENU PALING LAKU (TOP SELLING) - ${storeName}`],
-        ['Periode Cetak:', `${dateStamp} ${timeStamp}`],
-        [],
-        ['Peringkat', 'Nama Produk / Menu', 'Harga Satuan (Rp)', 'Jumlah Terjual (Porsi)', 'Total Pendapatan Menu (Rp)', 'Kontribusi Omzet (%)']
-      ];
-      sortedMenus.forEach((m, idx) => {
-        const sharePct = totalSubtotal > 0 ? Number(((m.revenue / totalSubtotal) * 100).toFixed(1)) : 0;
-        topMenuAOA.push([idx + 1, m.name, m.price, m.qty, m.revenue, `${sharePct}%`]);
-      });
-      topMenuAOA.push([], ['TOTAL KESELURUHAN', '', '', totalItemsSold, totalSubtotal, '100%']);
-      const wsTopMenus = XLSX.utils.aoa_to_sheet(topMenuAOA);
-      autoFitColumns(wsTopMenus, topMenuAOA);
+      const topMenuAOA = [['PERINGKAT MENU PALING LAKU (TOP SELLING)'], [], ['Peringkat', 'Nama Menu', 'Harga (Rp)', 'Terjual (Porsi)', 'Pendapatan (Rp)']];
+      sortedMenus.forEach((m, idx) => topMenuAOA.push([idx + 1, m.name, m.price, m.qty, m.revenue]));
+      const wsTopMenus = XLSX.utils.aoa_to_sheet(topMenuAOA); autoFitColumns(wsTopMenus, topMenuAOA);
 
-      const trxAOA = [
-        [`DAFTAR RINCIAN TRANSAKSI PENJUALAN - ${storeName}`],
-        ['NMID: ID1025418780603 • Terminal A01'],
-        [],
-        ['No', 'ID Struk', 'Tanggal', 'Jam', 'Kasir / Pelanggan', 'Metode Pembayaran', 'Rincian Menu Dibeli', 'Catatan / Deskripsi', 'Jumlah Item', 'Subtotal (Rp)', 'PPN 11% (Rp)', 'Total Bayar (Rp)']
-      ];
+      const trxAOA = [['RINCIAN TRANSAKSI'], [], ['No', 'ID Struk', 'Tanggal', 'Kasir', 'Metode', 'Rincian Menu', 'Catatan', 'Total (Rp)']];
       [...transactions].reverse().forEach((t, idx) => {
-        const sub = t.subtotal !== undefined ? t.subtotal : (t.total - (t.tax || 0));
-        const tx = t.tax || 0;
-        const itemCount = Array.isArray(t.itemDetails) ? t.itemDetails.reduce((s, i) => s + i.qty, 0) : 1;
-        trxAOA.push([idx + 1, t.id, t.date || dateStamp, t.time, t.customer || storeCashier || '-', t.method, t.items, t.note || '-', itemCount, sub, tx, t.total]);
+        trxAOA.push([idx + 1, t.id, `${t.date || ''} ${t.time}`, t.customer || storeCashier, t.method, t.items, t.note || '-', t.total]);
       });
-      trxAOA.push([], ['', 'GRAND TOTAL', '', '', '', '', '', '', totalItemsSold, totalSubtotal, totalTax, totalOmzet]);
-      const wsTrx = XLSX.utils.aoa_to_sheet(trxAOA);
-      autoFitColumns(wsTrx, trxAOA);
+      const wsTrx = XLSX.utils.aoa_to_sheet(trxAOA); autoFitColumns(wsTrx, trxAOA);
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan Omzet');
       XLSX.utils.book_append_sheet(wb, wsTopMenus, 'Menu Terlaris');
       XLSX.utils.book_append_sheet(wb, wsTrx, 'Rincian Transaksi');
-
       XLSX.writeFile(wb, `Laporan_Kasir_${now.toISOString().slice(0, 10)}.xlsx`);
     }
 
-    // =========================================================================
-    // 7. ALGORITMA KONVERSI QRIS STATIS -> DINAMIS (CRC16-CCITT)
-    // =========================================================================
     function crc16CCITT(str) {
       let crc = 0xFFFF;
       for (let i = 0; i < str.length; i++) {
@@ -1452,46 +1359,29 @@
       return payloadWithoutCrc + crc16CCITT(payloadWithoutCrc);
     }
 
-    // =========================================================================
-    // 8. UPLOAD GAMBAR QRIS
-    // =========================================================================
     function handleQrisImageUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
-      const statusEl = document.getElementById('decode-status');
-      if (statusEl) statusEl.textContent = '⏳ Memindai kode QRIS dari gambar...';
-
       const reader = new FileReader();
       reader.onload = function(e) {
-        const dataUrl = e.target.result;
-        savedQrisImage = dataUrl;
-        try { localStorage.setItem('andri_qris_img', dataUrl); } catch (err) {}
-
+        savedQrisImage = e.target.result;
+        try { localStorage.setItem('andri_qris_img', savedQrisImage); } catch (err) {}
         const img = new Image();
         img.onload = function() {
           const canvas = document.getElementById('qr-reader-canvas');
           const ctx = canvas.getContext('2d');
-          canvas.width = img.width;
-          canvas.height = img.height;
+          canvas.width = img.width; canvas.height = img.height;
           ctx.drawImage(img, 0, 0, img.width, img.height);
-          const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const code = jsQR(imageData.data, imageData.width, imageData.height);
-
+          const code = jsQR(ctx.getImageData(0, 0, canvas.width, canvas.height).data, canvas.width, canvas.height);
           if (code && code.data && code.data.startsWith('000201')) {
             rawQrisString = code.data;
             document.getElementById('qris-raw-string').value = rawQrisString;
             localStorage.setItem('andri_qris_raw', rawQrisString);
-            if (statusEl) {
-              statusEl.innerHTML = '✅ <b>Aktif!</b> Kode <b>QRIS ANDRI</b> berhasil terbaca & siap membuat QRIS Dinamis.';
-              statusEl.className = 'text-xs font-semibold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200';
-            }
             updateSetupStatusUI();
           }
-          if (!document.getElementById('qris-modal').classList.contains('hidden')) {
-            renderQrisInModal(getCartTotals().total);
-          }
+          if (!document.getElementById('qris-modal').classList.contains('hidden')) renderQrisInModal(getCartTotals().total);
         };
-        img.src = dataUrl;
+        img.src = savedQrisImage;
       };
       reader.readAsDataURL(file);
     }
@@ -1507,18 +1397,14 @@
       const text = document.getElementById('qris-status-text');
       const alertBanner = document.getElementById('setup-alert');
       if (rawQrisString && rawQrisString.startsWith('000201')) {
-        dot.className = 'w-2 h-2 rounded-full bg-emerald-400';
-        text.textContent = 'QRIS Aktif';
-        alertBanner.classList.add('hidden');
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400'; text.textContent = 'QRIS Aktif'; alertBanner.classList.add('hidden');
       } else {
-        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse';
-        text.textContent = 'Setup QR';
-        alertBanner.classList.remove('hidden');
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse'; text.textContent = 'Setup QR'; alertBanner.classList.remove('hidden');
       }
     }
 
     // =========================================================================
-    // 9. KATALOG, KERANJANG & LAMAN PENUH RINCIAN PESANAN
+    // 5. KATALOG PRODUK (DENGAN TOMBOL - / + LANGSUNG TANPA OVERLAPPING)
     // =========================================================================
     function renderProducts() {
       const keyword = document.getElementById('search-input').value.toLowerCase();
@@ -1527,24 +1413,141 @@
 
       products.filter(p => p.name.toLowerCase().includes(keyword)).forEach(p => {
         const inCart = cart.find(i => i.id === p.id);
-        const qtyBadge = inCart ? `<span class="bg-sky-600 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full">${inCart.qty}x</span>` : '';
+        const qtyBadge = inCart ? `<span class="bg-sky-600 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0">${inCart.qty}x</span>` : '';
+
         const card = document.createElement('div');
-        card.className = `bg-white p-3.5 rounded-2xl border ${inCart ? 'border-sky-500 ring-1 ring-sky-500' : 'border-slate-200'} shadow-xs active:scale-[0.98] transition cursor-pointer flex flex-col justify-between min-h-[92px]`;
+        card.className = `bg-white p-3.5 rounded-2xl border ${inCart ? 'border-sky-500 ring-1 ring-sky-500 bg-sky-50/20' : 'border-slate-200'} shadow-xs flex flex-col justify-between min-h-[104px] transition`;
+
+        // Kontrol Bawah Kartu: Jika sudah ada di keranjang, tampilkan tombol [-] qty [+] langsung
+        const actionControls = inCart
+          ? `<div class="flex items-center bg-slate-100 rounded-xl p-0.5 border border-slate-200" onclick="event.stopPropagation()">
+               <button onclick="changeQty(${p.id}, -1)" class="w-7 h-7 rounded-lg bg-white text-rose-600 font-black text-sm shadow-2xs active:scale-90 flex items-center justify-center">-</button>
+               <span class="w-6 text-center text-xs font-extrabold text-slate-800">${inCart.qty}</span>
+               <button onclick="changeQty(${p.id}, 1)" class="w-7 h-7 rounded-lg bg-sky-600 text-white font-black text-sm shadow-2xs active:scale-90 flex items-center justify-center">+</button>
+             </div>`
+          : `<button onclick="event.stopPropagation(); addToCart({id: ${p.id}, name: '${p.name.replace(/'/g, "\\'")}', price: ${p.price}})" class="w-8 h-8 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 font-extrabold text-base flex items-center justify-center border border-sky-200/60">+</button>`;
+
         card.onclick = () => addToCart(p);
         card.innerHTML = `
-          <div class="flex justify-between items-start gap-1">
-            <h4 class="font-bold text-slate-800 text-xs leading-snug">${p.name}</h4>
+          <div class="flex justify-between items-start gap-1.5">
+            <h4 class="font-bold text-slate-800 text-xs leading-snug break-words">${p.name}</h4>
             ${qtyBadge}
           </div>
-          <div class="mt-2 flex justify-between items-center">
+          <div class="mt-3 flex justify-between items-center gap-1">
             <span class="text-sky-600 font-extrabold text-sm">${formatRupiah(p.price)}</span>
-            <span class="text-sky-600 font-bold text-xs">+</span>
+            ${actionControls}
           </div>
         `;
         grid.appendChild(card);
       });
     }
 
+    // =========================================================================
+    // 6. MODAL KELOLA / EDIT MENU (TAMBAH, EDIT HARGA/NAMA, HAPUS)
+    // =========================================================================
+    function openProductModal() {
+      document.getElementById('new-prod-name').value = '';
+      document.getElementById('new-prod-price-formatted').value = '';
+      document.getElementById('new-prod-price').value = '0';
+      renderManageProductsList();
+      document.getElementById('product-modal').classList.remove('hidden');
+      document.getElementById('product-modal').classList.add('flex');
+    }
+
+    function closeProductModal() {
+      document.getElementById('product-modal').classList.add('hidden');
+      document.getElementById('product-modal').classList.remove('flex');
+    }
+
+    function renderManageProductsList() {
+      const list = document.getElementById('manage-product-list');
+      const countBadge = document.getElementById('manage-menu-count');
+      countBadge.textContent = `${products.length} Menu`;
+      list.innerHTML = '';
+
+      if (products.length === 0) {
+        list.innerHTML = '<p class="text-xs text-slate-400 text-center py-4">Belum ada menu tersimpan.</p>';
+        return;
+      }
+
+      products.forEach(p => {
+        const itemRow = document.createElement('div');
+        itemRow.className = 'pt-2.5 first:pt-0 flex items-center gap-2';
+        itemRow.innerHTML = `
+          <div class="flex-1 space-y-1">
+            <input type="text" value="${p.name.replace(/"/g, '&quot;')}" onchange="updateExistingProductName(${p.id}, this.value)" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500" placeholder="Nama Menu">
+            <div class="relative flex items-center">
+              <span class="absolute left-2.5 text-[11px] font-bold text-slate-400">Rp</span>
+              <input type="text" inputmode="numeric" value="${Number(p.price).toLocaleString('id-ID')}" oninput="formatAndSaveExistingPrice(${p.id}, this)" class="w-full pl-8 pr-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-extrabold text-sky-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500" placeholder="Harga">
+            </div>
+          </div>
+          <button onclick="deleteProduct(${p.id})" class="px-3 py-3 rounded-xl bg-rose-50 hover:bg-rose-100 active:bg-rose-200 text-rose-600 font-bold text-xs shrink-0 border border-rose-200/60" title="Hapus Menu">
+            🗑️
+          </button>
+        `;
+        list.appendChild(itemRow);
+      });
+    }
+
+    function updateExistingProductName(id, newName) {
+      const clean = (newName || '').trim();
+      if (!clean) return;
+      const prod = products.find(p => p.id === id);
+      if (prod) {
+        prod.name = clean;
+        localStorage.setItem('andri_pos_products', JSON.stringify(products));
+        const inCart = cart.find(c => c.id === id);
+        if (inCart) inCart.name = clean;
+        updateCartUI();
+      }
+    }
+
+    function formatAndSaveExistingPrice(id, inputEl) {
+      let cleanVal = inputEl.value.replace(/\D/g, '');
+      let num = parseInt(cleanVal) || 0;
+      inputEl.value = num > 0 ? num.toLocaleString('id-ID') : '';
+
+      const prod = products.find(p => p.id === id);
+      if (prod && num > 0) {
+        prod.price = num;
+        localStorage.setItem('andri_pos_products', JSON.stringify(products));
+        const inCart = cart.find(c => c.id === id);
+        if (inCart) inCart.price = num;
+        updateCartUI();
+      }
+    }
+
+    function saveNewProduct() {
+      const name = document.getElementById('new-prod-name').value.trim();
+      const price = parseInt(document.getElementById('new-prod-price').value) || 0;
+      if (!name || price <= 0) {
+        alert('Masukkan nama menu dan harga yang valid!');
+        return;
+      }
+      products.push({ id: Date.now(), name, price });
+      localStorage.setItem('andri_pos_products', JSON.stringify(products));
+
+      document.getElementById('new-prod-name').value = '';
+      document.getElementById('new-prod-price-formatted').value = '';
+      document.getElementById('new-prod-price').value = '0';
+
+      renderManageProductsList();
+      renderProducts();
+    }
+
+    function deleteProduct(id) {
+      if (confirm('Yakin ingin menghapus menu ini dari katalog?')) {
+        products = products.filter(p => p.id !== id);
+        cart = cart.filter(c => c.id !== id);
+        localStorage.setItem('andri_pos_products', JSON.stringify(products));
+        renderManageProductsList();
+        updateCartUI();
+      }
+    }
+
+    // =========================================================================
+    // 7. KERANJANG & RINCIAN PESANAN
+    // =========================================================================
     function addToCart(product) {
       const existing = cart.find(i => i.id === product.id);
       if (existing) existing.qty += 1;
@@ -1628,7 +1631,7 @@
     }
 
     // =========================================================================
-    // 10. KEYPAD & LAMAN KONFIRMASI TUNAI (CASH)
+    // 8. KEYPAD, PEMBAYARAN TUNAI & QRIS
     // =========================================================================
     function pressKey(key) {
       if (key === 'BACK') keypadValue = keypadValue.slice(0, -1);
@@ -1644,18 +1647,14 @@
       if (!val || val <= 0) return;
       const note = document.getElementById('keypad-note').value.trim() || 'Item Custom';
       cart.push({ id: Date.now(), name: note, price: val, qty: 1 });
-      keypadValue = '';
-      document.getElementById('keypad-note').value = '';
+      keypadValue = ''; document.getElementById('keypad-note').value = '';
       document.getElementById('keypad-display').textContent = 'Rp 0';
       updateCartUI();
     }
 
     function instantCheckoutFromKeypad() {
       if (parseInt(keypadValue) > 0) addKeypadToCart();
-      if (getCartTotals().total <= 0) {
-        alert('Ketik nominal atau pilih menu terlebih dahulu!');
-        return;
-      }
+      if (getCartTotals().total <= 0) { alert('Ketik nominal atau pilih menu terlebih dahulu!'); return; }
       openOrderReviewPage();
     }
 
@@ -1664,6 +1663,7 @@
       if (total <= 0) return;
       document.getElementById('cash-page-total').textContent = formatRupiah(total);
       document.getElementById('cash-received-input').value = total;
+      document.getElementById('cash-received-formatted').value = Number(total).toLocaleString('id-ID');
 
       const itemsBox = document.getElementById('cash-page-items');
       itemsBox.innerHTML = '';
@@ -1686,7 +1686,9 @@
 
     function setQuickCash(amount) {
       const { total } = getCartTotals();
-      document.getElementById('cash-received-input').value = amount === 'exact' ? total : amount;
+      const val = amount === 'exact' ? total : amount;
+      document.getElementById('cash-received-input').value = val;
+      document.getElementById('cash-received-formatted').value = Number(val).toLocaleString('id-ID');
       calculateCashChange();
     }
 
@@ -1702,38 +1704,25 @@
 
       if (diff >= 0) {
         box.className = 'bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-4 flex justify-between items-center';
-        label.className = 'text-xs font-bold text-emerald-900 block';
-        label.textContent = 'Uang Kembalian Pelanggan';
-        sub.className = 'text-[11px] text-emerald-700';
-        sub.textContent = diff === 0 ? 'Uang Pas (Tanpa Kembalian)' : 'Siap dikonfirmasi';
-        disp.className = 'text-2xl font-black text-emerald-700';
-        disp.textContent = formatRupiah(diff);
+        label.className = 'text-xs font-bold text-emerald-900 block'; label.textContent = 'Uang Kembalian Pelanggan';
+        sub.className = 'text-[11px] text-emerald-700'; sub.textContent = diff === 0 ? 'Uang Pas (Tanpa Kembalian)' : 'Siap dikonfirmasi';
+        disp.className = 'text-2xl font-black text-emerald-700'; disp.textContent = formatRupiah(diff);
       } else {
         box.className = 'bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 flex justify-between items-center';
-        label.className = 'text-xs font-bold text-rose-900 block';
-        label.textContent = 'Nominal Uang Kurang';
-        sub.className = 'text-[11px] text-rose-700';
-        sub.textContent = 'Masukkan nominal minimal sesuai tagihan';
-        disp.className = 'text-2xl font-black text-rose-600';
-        disp.textContent = '- ' + formatRupiah(Math.abs(diff));
+        label.className = 'text-xs font-bold text-rose-900 block'; label.textContent = 'Nominal Uang Kurang';
+        sub.className = 'text-[11px] text-rose-700'; sub.textContent = 'Masukkan nominal minimal sesuai tagihan';
+        disp.className = 'text-2xl font-black text-rose-600'; disp.textContent = '- ' + formatRupiah(Math.abs(diff));
       }
     }
 
     function finalizeCashPayment() {
       const { total } = getCartTotals();
       const received = parseInt(document.getElementById('cash-received-input').value) || 0;
-      if (received < total) {
-        alert('Nominal uang tunai yang diterima masih kurang dari total tagihan!');
-        return;
-      }
-      closeCashConfirmationPage();
-      closeOrderReviewPage();
+      if (received < total) { alert('Nominal uang tunai yang diterima masih kurang dari total tagihan!'); return; }
+      closeCashConfirmationPage(); closeOrderReviewPage();
       confirmPayment('Tunai', { cashReceived: received, cashChange: received - total });
     }
 
-    // =========================================================================
-    // 11. LAMAN PENUH QRIS (GAMBAR BESAR) & KONFIRMASI BAYAR
-    // =========================================================================
     function openQrisPayment() {
       const { total } = getCartTotals();
       if (total <= 0) return;
@@ -1758,10 +1747,8 @@
       if (currentQrisMode === 'dynamic') {
         btnDyn.className = 'py-2.5 text-xs font-extrabold rounded-xl bg-white text-sky-700 shadow-xs';
         btnStat.className = 'py-2.5 text-xs font-bold rounded-xl text-slate-600';
-        dynBox.classList.remove('hidden');
-        statBox.classList.add('hidden');
-        badge.textContent = '✓ Nominal otomatis terkunci saat di-scan';
-        badge.className = 'block text-xs font-bold text-emerald-600 mt-1';
+        dynBox.classList.remove('hidden'); statBox.classList.add('hidden');
+        badge.textContent = '✓ Nominal otomatis terkunci saat di-scan'; badge.className = 'block text-xs font-bold text-emerald-600 mt-1';
 
         const qrContainer = document.getElementById('qrcode-canvas');
         qrContainer.innerHTML = '';
@@ -1778,22 +1765,13 @@
       } else {
         btnStat.className = 'py-2.5 text-xs font-extrabold rounded-xl bg-white text-sky-700 shadow-xs';
         btnDyn.className = 'py-2.5 text-xs font-bold rounded-xl text-slate-600';
-        dynBox.classList.add('hidden');
-        statBox.classList.remove('hidden');
-        statBox.classList.add('flex');
-        badge.textContent = 'ℹ️ Pelanggan mengetik nominal manual sesuai angka di atas';
-        badge.className = 'block text-xs font-bold text-amber-600 mt-1';
+        dynBox.classList.add('hidden'); statBox.classList.remove('hidden'); statBox.classList.add('flex');
+        badge.textContent = 'ℹ️ Pelanggan mengetik nominal manual sesuai angka di atas'; badge.className = 'block text-xs font-bold text-amber-600 mt-1';
 
         const imgEl = document.getElementById('static-qr-image');
         const emptyWarn = document.getElementById('static-empty-warning');
-        if (savedQrisImage) {
-          imgEl.src = savedQrisImage;
-          imgEl.classList.remove('hidden');
-          emptyWarn.classList.add('hidden');
-        } else {
-          imgEl.classList.add('hidden');
-          emptyWarn.classList.remove('hidden');
-        }
+        if (savedQrisImage) { imgEl.src = savedQrisImage; imgEl.classList.remove('hidden'); emptyWarn.classList.add('hidden'); }
+        else { imgEl.classList.add('hidden'); emptyWarn.classList.remove('hidden'); }
       }
     }
 
@@ -1813,27 +1791,21 @@
         customer: storeCashier || 'Andri',
         items: cart.map(i => `${i.name} (${i.qty}x)`).join(', '),
         itemDetails: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
-        subtotal,
-        tax,
-        total,
-        method,
+        subtotal, tax, total, method,
         cashReceived: extra.cashReceived !== undefined ? extra.cashReceived : null,
         cashChange: extra.cashChange !== undefined ? extra.cashChange : null,
-        note: quickNote,
-        showLogo: true
+        note: quickNote, showLogo: true
       };
 
       transactions.unshift(trx);
       localStorage.setItem('andri_pos_history', JSON.stringify(transactions));
-      clearCart();
-      closeQrisModal();
-      closeOrderReviewPage();
+      clearCart(); closeQrisModal(); closeOrderReviewPage();
       renderHistoryAndAnalytics();
       openReceiptModal(trx);
     }
 
     // =========================================================================
-    // 12. LAPORAN OMZET & ANALITIK MENU PALING LAKU
+    // 9. LAPORAN OMZET, TOP MENU & NAVIGASI
     // =========================================================================
     function renderHistoryAndAnalytics() {
       document.getElementById('history-count').textContent = transactions.length;
@@ -1850,8 +1822,7 @@
         if (Array.isArray(t.itemDetails)) {
           t.itemDetails.forEach(item => {
             if (!productStats[item.name]) productStats[item.name] = { name: item.name, qty: 0, revenue: 0 };
-            productStats[item.name].qty += item.qty;
-            productStats[item.name].revenue += item.qty * item.price;
+            productStats[item.name].qty += item.qty; productStats[item.name].revenue += item.qty * item.price;
             totalItemsSold += item.qty;
           });
         }
@@ -1922,8 +1893,7 @@
 
     function clearHistory() {
       if (confirm('Hapus semua riwayat transaksi dan reset laporan omzet?')) {
-        transactions = [];
-        localStorage.removeItem('andri_pos_history');
+        transactions = []; localStorage.removeItem('andri_pos_history');
         renderHistoryAndAnalytics();
       }
     }
@@ -1937,33 +1907,9 @@
       document.getElementById('nav-' + tab).className = 'py-2.5 flex flex-col items-center justify-center text-sky-600 font-bold';
     }
 
-    function openProductModal() {
-      document.getElementById('product-modal').classList.remove('hidden');
-      document.getElementById('product-modal').classList.add('flex');
-    }
-
-    function closeProductModal() {
-      document.getElementById('product-modal').classList.add('hidden');
-      document.getElementById('product-modal').classList.remove('flex');
-    }
-
-    function saveNewProduct() {
-      const name = document.getElementById('new-prod-name').value.trim();
-      const price = parseInt(document.getElementById('new-prod-price').value);
-      if (!name || !price) return;
-      products.push({ id: Date.now(), name, price });
-      localStorage.setItem('andri_pos_products', JSON.stringify(products));
-      document.getElementById('new-prod-name').value = '';
-      document.getElementById('new-prod-price').value = '';
-      closeProductModal();
-      renderProducts();
-    }
-
     window.onload = function() {
       setupProgressiveWebApp();
-      if (!localStorage.getItem('andri_qris_raw')) {
-        localStorage.setItem('andri_qris_raw', DEFAULT_ANDRI_QRIS);
-      }
+      if (!localStorage.getItem('andri_qris_raw')) localStorage.setItem('andri_qris_raw', DEFAULT_ANDRI_QRIS);
       document.getElementById('qris-raw-string').value = rawQrisString;
       document.getElementById('store-name-input').value = storeName;
       document.getElementById('store-desc-input').value = storeDesc;

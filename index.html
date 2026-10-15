@@ -9,12 +9,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="application-name" content="Kasir">
   <meta name="apple-mobile-web-app-title" content="Kasir">
-  <title>Kasir</title>
+  <title>Kasir - Warung & Catering Gentong</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- Menggunakan xlsx-js-style untuk Tabel Excel Berwarna, Border Rapi & Format Rupiah -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -62,14 +63,14 @@
           KASIR
         </div>
         <div>
-          <h1 class="font-extrabold text-sm leading-tight" id="top-store-title">QRIS ANDRI</h1>
-          <p class="text-[10px] text-sky-100 font-medium">ID1025418780603 • A01</p>
+          <h1 class="font-extrabold text-sm leading-tight" id="top-store-title">WARUNG & CATERING GENTONG</h1>
+          <p class="text-[10px] text-sky-100 font-medium">ID1026551667391 • A01</p>
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-1.5 shrink-0">
         <button onclick="installPWA()" id="pwa-install-btn" class="hidden bg-amber-400 text-slate-900 px-2.5 py-1 rounded-full text-[10px] font-extrabold shadow animate-bounce">
-          📲 Install Kasir
+          📲 Install
         </button>
         <button onclick="connectBluetoothPrinter()" id="bt-status-btn" class="flex items-center gap-1 bg-sky-700/90 active:bg-sky-800 border border-sky-400/40 px-2.5 py-1 rounded-full text-[10px] font-bold transition">
           <span id="bt-dot" class="w-2 h-2 rounded-full bg-slate-300"></span>
@@ -96,27 +97,22 @@
       </p>
     </div>
 
-    <div id="setup-alert" onclick="switchTab('qris')" class="hidden bg-amber-50 border border-amber-300 rounded-2xl p-3 flex items-center justify-between gap-3 cursor-pointer active:scale-[0.99] transition">
-      <div class="flex items-center gap-2.5">
-        <span class="text-xl">📲</span>
-        <div class="text-xs">
-          <p class="font-bold text-amber-900">Aktifkan QRIS Dinamis Anda</p>
-          <p class="text-amber-700">Ketuk di sini & pilih gambar QRIS ANDRI (cukup 1x)</p>
-        </div>
-      </div>
-      <span class="text-amber-800 font-bold text-sm">➔</span>
-    </div>
-
     <!-- ========================================== -->
-    <!-- TAB 1: KATALOG PRODUK                      -->
+    <!-- TAB 1: KATALOG PRODUK WARUNG GENTONG       -->
     <!-- ========================================== -->
     <section id="view-pos" class="space-y-3">
+      <!-- Bar Pencarian & Tombol Edit Menu -->
       <div class="flex gap-2">
-        <input type="text" id="search-input" oninput="renderProducts()" placeholder="🔍 Cari menu / produk..." class="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+        <input type="text" id="search-input" oninput="renderProducts()" placeholder="🔍 Cari nasi goreng, mie, capcay..." class="flex-1 px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
         <button onclick="openProductModal()" class="bg-sky-600 active:bg-sky-700 text-white font-bold px-3.5 py-2.5 rounded-xl text-xs shadow-sm shrink-0 flex items-center gap-1">
           <span>✏️ Edit Menu</span>
         </button>
       </div>
+
+      <!-- Filter Kategori Menu (Geser Samping) -->
+      <div id="category-chips" class="flex gap-1.5 overflow-x-auto no-scrollbar pb-1"></div>
+
+      <!-- Grid Daftar Menu -->
       <div id="product-grid" class="grid grid-cols-2 gap-2.5"></div>
     </section>
 
@@ -125,9 +121,9 @@
     <!-- ========================================== -->
     <section id="view-keypad" class="hidden space-y-3">
       <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 text-right">
-        <span class="text-xs font-semibold text-slate-400 block">Input Nominal Tagihan Cepat</span>
+        <span class="text-xs font-semibold text-slate-400 block">Input Nominal Tagihan Cepat / Catering</span>
         <div id="keypad-display" class="text-3xl font-extrabold text-sky-600 mt-1 tracking-tight">Rp 0</div>
-        <input type="text" id="keypad-note" placeholder="Catatan / Nama Item (opsional)..." class="w-full mt-3 pt-2 border-t border-slate-100 text-xs text-right text-slate-600 focus:outline-none">
+        <input type="text" id="keypad-note" placeholder="Catatan / Nama Item (misal: Pesanan Catering)..." class="w-full mt-3 pt-2 border-t border-slate-100 text-xs text-right text-slate-600 focus:outline-none">
       </div>
 
       <div class="grid grid-cols-3 gap-2.5">
@@ -186,7 +182,7 @@
         </div>
 
         <button onclick="exportToExcel()" class="w-full py-2.5 px-4 bg-emerald-500 hover:bg-emerald-600 active:scale-[0.99] text-white font-extrabold text-xs rounded-xl shadow-md flex items-center justify-center gap-2 transition">
-          <span>📥 Export Laporan ke Excel (.xlsx)</span>
+          <span>📥 Export Tabel Laporan Excel (.xlsx)</span>
         </button>
       </div>
 
@@ -215,25 +211,30 @@
     <section id="view-qris" class="hidden space-y-4">
 
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3.5">
-        <div>
-          <span class="bg-indigo-100 text-indigo-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">Desain & Template Struk</span>
-          <h2 class="text-sm font-extrabold text-slate-800 mt-1.5">Kustomisasi Struk Pembelian</h2>
-          <p class="text-xs text-slate-500 mt-0.5">Atur logo/foto toko, nama, deskripsi, serta info kasir yang tercetak di struk pelanggan.</p>
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="bg-indigo-100 text-indigo-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">Desain & Template Struk</span>
+            <h2 class="text-sm font-extrabold text-slate-800 mt-1.5">Kustomisasi Struk Warung Gentong</h2>
+            <p class="text-xs text-slate-500 mt-0.5">Foto wajah, nama warung, alamat & nomor telepon sudah terpasang otomatis dari menu Anda.</p>
+          </div>
         </div>
 
         <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
           <div class="flex items-center justify-between">
-            <label class="text-xs font-bold text-slate-700">🖼️ Foto / Logo di Atas Struk:</label>
-            <button onclick="removeStoreLogo()" id="btn-remove-logo" class="hidden text-[11px] text-rose-600 font-bold hover:underline">Hapus Foto</button>
+            <label class="text-xs font-bold text-slate-700">🖼️ Foto Wajah / Logo di Struk:</label>
+            <div class="flex gap-2">
+              <button onclick="resetDefaultLogo()" class="text-[11px] text-sky-600 font-bold hover:underline">Reset Foto Asli</button>
+              <button onclick="removeStoreLogo()" id="btn-remove-logo" class="hidden text-[11px] text-rose-600 font-bold hover:underline">Hapus</button>
+            </div>
           </div>
 
           <div class="flex items-center gap-3">
-            <div id="logo-preview-box" class="w-16 h-16 rounded-xl bg-white border border-dashed border-slate-300 flex items-center justify-center overflow-hidden shrink-0">
-              <img id="store-logo-preview" src="" alt="Logo" class="hidden w-full h-full object-contain p-1">
-              <span id="logo-placeholder" class="text-[10px] text-slate-400 text-center px-1">Tanpa Foto</span>
+            <div id="logo-preview-box" class="w-16 h-16 rounded-xl bg-white border border-slate-300 flex items-center justify-center overflow-hidden shrink-0 shadow-2xs">
+              <img id="store-logo-preview" src="" alt="Logo Gentong" class="w-full h-full object-cover">
+              <span id="logo-placeholder" class="hidden text-[10px] text-slate-400 text-center px-1">Tanpa Foto</span>
             </div>
             <label class="flex-1 py-2.5 px-3 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-700 text-center cursor-pointer active:bg-slate-100 transition shadow-2xs">
-              📤 Pilih Foto / Logo dari HP
+              📤 Ganti Foto / Logo Lain
               <input type="file" accept="image/*" onchange="handleLogoUpload(event)" class="hidden">
             </label>
           </div>
@@ -242,25 +243,25 @@
         <div class="space-y-2.5">
           <div>
             <label class="text-[11px] font-bold text-slate-600">Nama Toko / Header Utama Struk:</label>
-            <input type="text" id="store-name-input" oninput="saveStoreInfo()" placeholder="Contoh: QRIS ANDRI" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold">
+            <input type="text" id="store-name-input" oninput="saveStoreInfo()" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold">
           </div>
           <div>
             <label class="text-[11px] font-bold text-slate-600">Deskripsi Toko / Slogan (Di Bawah Nama Toko):</label>
-            <textarea id="store-desc-input" rows="2" oninput="saveStoreInfo()" placeholder="Contoh: Warung Makan & Minuman Segar" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"></textarea>
+            <textarea id="store-desc-input" rows="2" oninput="saveStoreInfo()" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"></textarea>
           </div>
-          <div class="grid grid-cols-2 gap-2">
+          <div class="grid grid-cols-1 gap-2">
             <div>
-              <label class="text-[11px] font-bold text-slate-600">Alamat / Kontak:</label>
-              <input type="text" id="store-address-input" oninput="saveStoreInfo()" placeholder="Sidoarjo • 0812xxx" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+              <label class="text-[11px] font-bold text-slate-600">Alamat & Nomor Telepon Struk:</label>
+              <input type="text" id="store-address-input" oninput="saveStoreInfo()" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs">
             </div>
             <div>
               <label class="text-[11px] font-bold text-slate-600">Nama Kasir Default:</label>
-              <input type="text" id="store-cashier-input" oninput="saveStoreInfo()" placeholder="Contoh: Andri" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs">
+              <input type="text" id="store-cashier-input" oninput="saveStoreInfo()" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs">
             </div>
           </div>
           <div>
             <label class="text-[11px] font-bold text-slate-600">Catatan / Deskripsi Penutup Struk (Footer):</label>
-            <textarea id="store-footer-input" rows="2" oninput="saveStoreInfo()" placeholder="Contoh: Terima kasih atas kunjungan Anda!" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"></textarea>
+            <textarea id="store-footer-input" rows="2" oninput="saveStoreInfo()" class="w-full mt-1 px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs"></textarea>
           </div>
         </div>
       </div>
@@ -274,7 +275,7 @@
         <div id="printer-info-box" class="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
           <div class="text-xs">
             <p class="font-bold text-slate-700" id="printer-name-label">Status: Belum Terhubung</p>
-            <p class="text-[11px] text-slate-400">Mendukung cetak teks & foto logo (ESC/POS)</p>
+            <p class="text-[11px] text-slate-400">Mendukung cetak struk & foto wajah (ESC/POS)</p>
           </div>
           <button onclick="connectBluetoothPrinter()" class="bg-indigo-600 active:bg-indigo-700 text-white text-xs font-extrabold px-3.5 py-2 rounded-xl shadow-xs shrink-0">
             🔗 Hubungkan
@@ -282,29 +283,30 @@
         </div>
 
         <button onclick="testPrintBluetooth()" class="w-full py-2.5 rounded-xl border border-indigo-200 bg-indigo-50/60 active:bg-indigo-100 text-indigo-700 font-bold text-xs">
-          🖨️ Pratinjau & Tes Cetak Struk
+          🖨️ Pratinjau & Tes Cetak Struk Warung Gentong
         </button>
       </div>
 
       <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-4">
         <div>
           <span class="bg-sky-100 text-sky-800 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full">GoPay Merchant • A01</span>
-          <h2 class="text-sm font-extrabold text-slate-800 mt-1.5">Hubungkan Gambar QRIS ANDRI</h2>
+          <h2 class="text-sm font-extrabold text-slate-800 mt-1.5">Pengaturan QRIS WARUNG GENTONG</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Kode QRIS Dinamis <b>WARUNG GENTONG (ID1026551667391)</b> sudah terhubung otomatis.</p>
         </div>
 
         <label class="block p-4 border-2 border-dashed border-sky-300 bg-sky-50/60 rounded-2xl text-center cursor-pointer active:bg-sky-100 transition">
           <span class="text-2xl block mb-1">🖼️</span>
-          <span class="text-xs font-bold text-sky-700 block">Ketuk untuk Pilih Gambar QRIS dari Galeri HP</span>
-          <span class="text-[11px] text-slate-500">Format JPG / PNG</span>
+          <span class="text-xs font-bold text-sky-700 block">Simpan Gambar Poster QRIS Statis (Opsional)</span>
+          <span class="text-[11px] text-slate-500">Pilih gambar QRIS Warung Gentong dari Galeri HP</span>
           <input type="file" accept="image/*" onchange="handleQrisImageUpload(event)" class="hidden">
         </label>
 
         <p id="decode-status" class="text-xs font-semibold text-emerald-700 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
-          ✅ <b>Aktif!</b> Kode <b>QRIS ANDRI</b> berhasil terbaca & siap membuat QRIS Dinamis.
+          ✅ <b>Aktif!</b> Kode <b>WARUNG GENTONG (ID1026551667391)</b> siap membuat QRIS Dinamis.
         </p>
 
         <div>
-          <label class="text-xs font-bold text-slate-600 block mb-1">String Payload QRIS:</label>
+          <label class="text-xs font-bold text-slate-600 block mb-1">String Payload QRIS Dasar:</label>
           <textarea id="qris-raw-string" rows="3" oninput="saveQrisSettings()" class="w-full p-2.5 text-[11px] font-mono bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500"></textarea>
         </div>
       </div>
@@ -353,37 +355,47 @@
     </div>
   </nav>
 
-  <!-- ====================================================== -->
-  <!-- MODAL KELOLA / EDIT MENU (TAMBAH, EDIT HARGA, HAPUS)   -->
-  <!-- ====================================================== -->
+  <!-- MODAL KELOLA / EDIT MENU (TAMBAH, EDIT HARGA, HAPUS, RESET DEFAULT) -->
   <div id="product-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs hidden items-center justify-center z-50 p-3">
     <div class="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
-      
-      <!-- Header Modal Edit Menu -->
       <div class="bg-sky-600 text-white px-4 py-3.5 flex justify-between items-center">
         <div>
-          <h3 class="font-extrabold text-sm">✏️ Kelola & Edit Menu</h3>
-          <p class="text-[10px] text-sky-100">Tambah menu baru, ubah harga, atau hapus menu lama</p>
+          <h3 class="font-extrabold text-sm">✏️ Kelola & Edit Menu Gentong</h3>
+          <p class="text-[10px] text-sky-100">Tambah menu baru, ubah harga, atau hapus menu</p>
         </div>
         <button onclick="closeProductModal()" class="w-8 h-8 rounded-full bg-white/20 text-white font-bold text-lg leading-none flex items-center justify-center">&times;</button>
       </div>
 
-      <!-- Konten Scrollable -->
       <div class="p-4 overflow-y-auto flex-1 space-y-4 bg-slate-50">
-        
-        <!-- Bagian 1: Form Tambah Menu Baru -->
+        <!-- Form Tambah Menu Baru -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-3">
           <h4 class="font-extrabold text-xs text-sky-700 uppercase tracking-wider">+ Tambah Menu Baru</h4>
           <div class="space-y-2.5">
-            <div>
-              <label class="text-[11px] font-bold text-slate-600 block mb-1">Nama Menu / Produk</label>
-              <input type="text" id="new-prod-name" placeholder="Contoh: Es Kopi Susu" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
+            <div class="grid grid-cols-3 gap-2">
+              <div class="col-span-2">
+                <label class="text-[11px] font-bold text-slate-600 block mb-1">Nama Menu</label>
+                <input type="text" id="new-prod-name" placeholder="Contoh: Nasgor Babat" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
+              </div>
+              <div>
+                <label class="text-[11px] font-bold text-slate-600 block mb-1">Kategori</label>
+                <select id="new-prod-cat" class="w-full px-2 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500">
+                  <option value="Nasi Goreng">Nasi Goreng</option>
+                  <option value="Mie / Bihun">Mie / Bihun</option>
+                  <option value="Fu Yung Hai">Fu Yung Hai</option>
+                  <option value="Olahan Ayam">Olahan Ayam</option>
+                  <option value="Sayur">Sayur</option>
+                  <option value="Kwetiaw">Kwetiaw</option>
+                  <option value="I Fumie">I Fumie</option>
+                  <option value="Ekstra">Ekstra</option>
+                  <option value="Minuman">Minuman</option>
+                </select>
+              </div>
             </div>
             <div>
               <label class="text-[11px] font-bold text-slate-600 block mb-1">Harga (Rp)</label>
               <div class="relative flex items-center">
                 <span class="absolute left-3 text-xs font-extrabold text-slate-400">Rp</span>
-                <input type="text" inputmode="numeric" id="new-prod-price-formatted" oninput="formatPriceInput(this)" placeholder="15.000" class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-extrabold text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                <input type="text" inputmode="numeric" id="new-prod-price-formatted" oninput="formatPriceInput(this)" placeholder="20.000" class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-extrabold text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500">
               </div>
               <input type="hidden" id="new-prod-price" value="0">
             </div>
@@ -393,22 +405,22 @@
           </div>
         </div>
 
-        <!-- Bagian 2: Daftar Menu yang Ada (Edit Harga / Nama / Hapus) -->
+        <!-- Daftar Semua Menu Saat Ini -->
         <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs space-y-2.5">
           <div class="flex justify-between items-center border-b border-slate-100 pb-2">
             <div>
-              <h4 class="font-extrabold text-xs text-slate-800">📋 Daftar Menu Saat Ini</h4>
-              <p class="text-[10px] text-slate-400">Ubah harga/nama langsung di bawah, otomatis tersimpan</p>
+              <h4 class="font-extrabold text-xs text-slate-800">📋 Daftar Menu Saat Ini (<span id="manage-menu-count">0</span>)</h4>
+              <p class="text-[10px] text-slate-400">Ketik untuk ubah nama/harga, otomatis tersimpan</p>
             </div>
-            <span id="manage-menu-count" class="bg-slate-100 text-slate-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full">0 Menu</span>
+            <button onclick="resetDefaultMenus()" class="text-[10px] bg-amber-50 text-amber-800 border border-amber-200 font-bold px-2 py-1 rounded-lg">
+              🔄 Reset Menu Awal
+            </button>
           </div>
 
           <div id="manage-product-list" class="divide-y divide-slate-100 space-y-2.5 max-h-[42vh] overflow-y-auto pr-1"></div>
         </div>
-
       </div>
 
-      <!-- Footer Modal -->
       <div class="p-3 bg-white border-t border-slate-200">
         <button onclick="closeProductModal()" class="w-full py-2.5 rounded-xl bg-slate-800 active:bg-slate-900 text-white font-extrabold text-xs">
           Selesai & Tutup
@@ -443,8 +455,8 @@
         </div>
 
         <div class="bg-white rounded-2xl border border-slate-200 shadow-xs p-3.5">
-          <label class="text-[11px] font-bold text-slate-500 block mb-1">Catatan Pesanan / Nama Pelanggan (Opsional):</label>
-          <input type="text" id="order-quick-note" placeholder="Contoh: Bungkus / Meja 3 / Atas nama Budi..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
+          <label class="text-[11px] font-bold text-slate-500 block mb-1">Catatan Pesanan / Pilihan Saus (Opsional):</label>
+          <input type="text" id="order-quick-note" placeholder="Contoh: Saus Teriyaki / Lada Hitam / Bungkus..." class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
         </div>
       </div>
     </div>
@@ -574,8 +586,8 @@
         </button>
         <div class="text-center">
           <p class="text-[10px] font-bold uppercase tracking-widest text-sky-100">gopay merchant • QRIS Nasional</p>
-          <h3 class="text-base font-black leading-tight" id="qris-page-title">QRIS ANDRI</h3>
-          <p class="text-[10px] text-sky-100">NMID: ID1025418780603 • A01</p>
+          <h3 class="text-base font-black leading-tight" id="qris-page-title">WARUNG GENTONG,</h3>
+          <p class="text-[10px] text-sky-100">NMID: ID1026551667391 • A01</p>
         </div>
         <div class="w-16"></div>
       </div>
@@ -598,7 +610,7 @@
           <span class="text-xs text-sky-800 font-bold block">Total Nominal Pembayaran:</span>
           <span id="modal-total-amount" class="text-3xl font-black text-sky-700 tracking-tight block mt-0.5">Rp 0</span>
           <span id="modal-qris-badge" class="block text-xs font-bold text-emerald-600 mt-1">
-            ✓ Nominal otomatis terkunci saat di-scan
+            ✓ Nominal otomatis terkunci ke WARUNG GENTONG
           </span>
         </div>
 
@@ -610,9 +622,9 @@
         </div>
 
         <div id="static-qr-box" class="hidden w-full bg-white p-3 border-2 border-slate-200 rounded-3xl shadow-md flex-col items-center justify-center">
-          <img id="static-qr-image" src="" alt="QRIS ANDRI" class="w-full max-h-[62vh] object-contain rounded-2xl">
+          <img id="static-qr-image" src="" alt="QRIS WARUNG GENTONG" class="w-full max-h-[62vh] object-contain rounded-2xl">
           <div id="static-empty-warning" class="py-10 px-4 text-center space-y-3">
-            <p class="text-xs text-slate-500">Untuk melihat poster gambar asli, silakan pilih gambar QRIS Anda dari galeri HP:</p>
+            <p class="text-xs text-slate-500">Untuk menampilkan poster gambar asli, silakan pilih gambar QRIS Warung Gentong dari galeri HP:</p>
             <label class="inline-block bg-sky-600 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl cursor-pointer shadow">
               🖼️ Pilih Gambar QRIS dari Galeri
               <input type="file" accept="image/*" onchange="handleQrisImageUpload(event)" class="hidden">
@@ -661,7 +673,7 @@
           <div class="flex items-center justify-between gap-2 bg-white p-2 rounded-xl border border-amber-200">
             <label class="flex items-center gap-1.5 font-semibold text-slate-700 cursor-pointer">
               <input type="checkbox" id="edit-show-logo" onchange="applyReceiptEdits()" checked class="rounded text-sky-600">
-              <span>Tampilkan Foto/Logo</span>
+              <span>Tampilkan Foto Wajah</span>
             </label>
             <label class="text-[11px] font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-lg cursor-pointer">
               📷 Ganti Foto
@@ -707,15 +719,16 @@
           </div>
         </div>
 
+        <!-- AREA KERTAS STRUK THERMAL 58MM -->
         <div id="printable-receipt" class="bg-white p-4 rounded-2xl border border-slate-200 font-mono text-xs text-slate-800 space-y-2 shadow-xs mx-auto max-w-[280px]">
-          <div id="receipt-logo-container" class="hidden flex-col items-center justify-center pb-1">
-            <img id="receipt-logo-img" src="" alt="Logo Struk" class="max-h-20 max-w-[150px] object-contain mx-auto filter grayscale contrast-125">
+          <div id="receipt-logo-container" class="flex flex-col items-center justify-center pb-1">
+            <img id="receipt-logo-img" src="" alt="Foto Wajah Gentong" class="w-16 h-16 rounded-full object-cover mx-auto border border-slate-300 filter grayscale contrast-125">
           </div>
 
           <div class="text-center border-b border-dashed border-slate-300 pb-2 space-y-0.5">
-            <p class="font-extrabold text-sm tracking-tight" id="receipt-store-name">QRIS ANDRI</p>
+            <p class="font-extrabold text-sm tracking-tight" id="receipt-store-name">WARUNG & CATERING GENTONG</p>
             <p class="text-[10px] text-slate-600 whitespace-pre-line" id="receipt-store-desc"></p>
-            <p class="text-[10px] text-slate-500" id="receipt-store-address">NMID: ID1025418780603</p>
+            <p class="text-[10px] text-slate-600 font-semibold leading-snug" id="receipt-store-address">Graha Sakinah 4 Pondok Jati Blok BN No. 5, Telp 082114000793</p>
           </div>
 
           <div class="text-[11px] border-b border-dashed border-slate-300 pb-2 space-y-0.5">
@@ -778,8 +791,114 @@
 
   <script>
     // =========================================================================
-    // 0. KONFIGURASI PWA & FORMAT RUPIAH OTOMATIS DENGAN TITIK RIBUAN
+    // 1. DATA BAWAAN WARUNG & CATERING GENTONG (QRIS, FOTO WAJAH, ALAMAT & 53 MENU)
     // =========================================================================
+    const DEFAULT_GENTONG_QRIS = "00020101021126610014COM.GO-JEK.WWW01189360091431963305490210G1963305490303UMI51440014ID.CO.QRIS.WWW0215ID10265516673910303UMI5204581253033605802ID5915WARUNG GENTONG,6008SIDOARJO61056125262140703A0111036216304BB0B";
+
+    // Foto Wajah dari Daftar Menu Warung Gentong (Sudah di-crop & dioptimalkan untuk Struk)
+    const DEFAULT_GENTONG_FACE_LOGO = "data:image/jpeg;base64,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";
+
+    // Daftar Lengkap 53 Menu Warung & Catering GENTONG Sesuai Foto Menu
+    const DEFAULT_GENTONG_MENUS = [
+      // Kategori: Nasi Goreng
+      { id: 101, cat: 'Nasi Goreng', name: 'Nasi Goreng Jawa', price: 17500 },
+      { id: 102, cat: 'Nasi Goreng', name: 'Nasi Goreng Mawut', price: 17500 },
+      { id: 103, cat: 'Nasi Goreng', name: 'Nasi Goreng Ebi', price: 17500 },
+      { id: 104, cat: 'Nasi Goreng', name: 'Nasi Goreng Kare', price: 21000 },
+      { id: 105, cat: 'Nasi Goreng', name: 'Nasi Goreng Ikan Asin', price: 21000 },
+      { id: 106, cat: 'Nasi Goreng', name: 'Nasi Goreng Ndeso', price: 21000 },
+      { id: 107, cat: 'Nasi Goreng', name: 'Nasi Goreng Hongkong', price: 21000 },
+      { id: 108, cat: 'Nasi Goreng', name: 'Nasi Goreng Lada Hitam', price: 21000 },
+      { id: 109, cat: 'Nasi Goreng', name: 'Nasi Goreng Cabe Ijo', price: 23000 },
+      { id: 110, cat: 'Nasi Goreng', name: 'Nasi Goreng Seafood', price: 23000 },
+      { id: 111, cat: 'Nasi Goreng', name: 'Nasi Goreng Pete', price: 25000 },
+      { id: 112, cat: 'Nasi Goreng', name: 'Nasgor Special', price: 26000 },
+      { id: 113, cat: 'Nasi Goreng', name: 'Nasgor Capcay', price: 27000 },
+      { id: 114, cat: 'Nasi Goreng', name: 'Nasgor Capcay Ayam', price: 31000 },
+      { id: 115, cat: 'Nasi Goreng', name: 'Nasgor Capcay Seafood', price: 31000 },
+      { id: 116, cat: 'Nasi Goreng', name: 'Nasgor Capcay Special', price: 35000 },
+
+      // Kategori: Mie / Bihun
+      { id: 201, cat: 'Mie / Bihun', name: 'Mie / Bihun Biasa', price: 17500 },
+      { id: 202, cat: 'Mie / Bihun', name: 'Mie / Bihun Jawa', price: 22000 },
+      { id: 203, cat: 'Mie / Bihun', name: 'Mie / Bihun Ndeso', price: 22000 },
+      { id: 204, cat: 'Mie / Bihun', name: 'Mie / Bihun Lada Hitam', price: 24000 },
+      { id: 205, cat: 'Mie / Bihun', name: 'Mie / Bihun Special Ayam', price: 24000 },
+      { id: 206, cat: 'Mie / Bihun', name: 'Mie / Bihun Seafood', price: 24000 },
+      { id: 207, cat: 'Mie / Bihun', name: 'Mie / Bihun Komplit', price: 27000 },
+
+      // Kategori: Fu Yung Hai
+      { id: 301, cat: 'Fu Yung Hai', name: 'Fu Yung Hai Biasa', price: 19000 },
+      { id: 302, cat: 'Fu Yung Hai', name: 'Fu Yung Hai Sosis', price: 23000 },
+      { id: 303, cat: 'Fu Yung Hai', name: 'Fu Yung Hai Seafood', price: 25000 },
+      { id: 304, cat: 'Fu Yung Hai', name: 'Fu Yung Hai Ayam', price: 25000 },
+      { id: 305, cat: 'Fu Yung Hai', name: 'Fu Yung Hai Special (Ayam+Sosis)', price: 28000 },
+      { id: 306, cat: 'Fu Yung Hai', name: 'Fu Yung Hai Komplit (Ayam+Sosis+Seafood)', price: 30000 },
+
+      // Kategori: Olahan Ayam (Teriyaki, Lada Hitam, Saos Inggris)
+      { id: 401, cat: 'Olahan Ayam', name: 'Paket Nasi Ayam', price: 30000 },
+      { id: 402, cat: 'Olahan Ayam', name: 'Olahan Ayam (Isi 4 Ptg)', price: 30000 },
+      { id: 403, cat: 'Olahan Ayam', name: 'Olahan Ayam (Isi 6 Ptg)', price: 37000 },
+      { id: 404, cat: 'Olahan Ayam', name: 'Olahan Ayam (Isi 8 Ptg)', price: 49000 },
+
+      // Kategori: Sayur
+      { id: 501, cat: 'Sayur', name: 'Capcay Biasa', price: 23000 },
+      { id: 502, cat: 'Sayur', name: 'Capcay Ayam', price: 27500 },
+      { id: 503, cat: 'Sayur', name: 'Capcay Seafood', price: 27500 },
+      { id: 504, cat: 'Sayur', name: 'Capcay Special', price: 32500 },
+
+      // Kategori: Kwetiaw & I Fumie
+      { id: 601, cat: 'Kwetiaw', name: 'Kwetiaw Biasa', price: 22000 },
+      { id: 602, cat: 'Kwetiaw', name: 'Kwetiaw Ayam', price: 27000 },
+      { id: 603, cat: 'Kwetiaw', name: 'Kwetiaw Seafood', price: 27000 },
+      { id: 604, cat: 'Kwetiaw', name: 'Kwetiaw Lada Hitam', price: 27000 },
+      { id: 605, cat: 'Kwetiaw', name: 'Kwetiaw Special', price: 30000 },
+      { id: 606, cat: 'I Fumie', name: 'I Fumie', price: 28000 },
+
+      // Kategori: Ekstra
+      { id: 701, cat: 'Ekstra', name: 'Ekstra Nasi Putih', price: 5000 },
+      { id: 702, cat: 'Ekstra', name: 'Ekstra Telor', price: 5000 },
+      { id: 703, cat: 'Ekstra', name: 'Ekstra Sosis', price: 5000 },
+      { id: 704, cat: 'Ekstra', name: 'Ekstra Ikan Asin', price: 6000 },
+      { id: 705, cat: 'Ekstra', name: 'Ekstra Ayam Suwir', price: 6000 },
+      { id: 706, cat: 'Ekstra', name: 'Ekstra Pete', price: 6000 },
+      { id: 707, cat: 'Ekstra', name: 'Ekstra Tamie (Mie Kering)', price: 6000 },
+
+      // Kategori: Minuman (Biasa & Jumbo)
+      { id: 801, cat: 'Minuman', name: 'Teh', price: 5000 },
+      { id: 802, cat: 'Minuman', name: 'Jeruk', price: 7000 },
+      { id: 803, cat: 'Minuman', name: 'Milo', price: 7000 },
+      { id: 804, cat: 'Minuman', name: 'Teh Jumbo', price: 8000 },
+      { id: 805, cat: 'Minuman', name: 'Jeruk Jumbo', price: 10000 },
+      { id: 806, cat: 'Minuman', name: 'Milo Jumbo', price: 10000 },
+      { id: 807, cat: 'Minuman', name: 'Lemon Tea Jumbo', price: 10000 }
+    ];
+
+    // Gunakan key storage khusus Warung Gentong agar langsung memuat menu & pengaturan baru
+    let products = JSON.parse(localStorage.getItem('gentong_pos_products')) || DEFAULT_GENTONG_MENUS;
+    let cart = [];
+    let selectedCategory = 'Semua';
+    let keypadValue = '';
+    let transactions = JSON.parse(localStorage.getItem('gentong_pos_history')) || [];
+    let rawQrisString = localStorage.getItem('gentong_qris_raw') || DEFAULT_GENTONG_QRIS;
+    let savedQrisImage = localStorage.getItem('gentong_qris_img') || '';
+
+    let storeName = localStorage.getItem('gentong_store_name') || 'WARUNG & CATERING GENTONG';
+    let storeDesc = localStorage.getItem('gentong_store_desc') || 'Menu Spesial Masakan & Catering Halal';
+    let storeAddress = localStorage.getItem('gentong_store_address') || 'Graha Sakinah 4 Pondok Jati Blok BN No. 5, Telp 082114000793';
+    let storeCashier = localStorage.getItem('gentong_store_cashier') || 'Gentong';
+    let storeFooter = localStorage.getItem('gentong_store_footer') || 'Terima kasih! Menerima Pesanan Catering • Telp/WA: 082114000793';
+    let storeLogo = localStorage.getItem('gentong_store_logo') !== null ? localStorage.getItem('gentong_store_logo') : DEFAULT_GENTONG_FACE_LOGO;
+
+    let currentQrisMode = 'dynamic';
+    let activeReceiptTrx = null;
+    let btDevice = null;
+    let btCharacteristic = null;
+
+    function formatRupiah(num) {
+      return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+    }
+
     function formatPriceInput(input) {
       let cleanVal = input.value.replace(/\D/g, '');
       let num = parseInt(cleanVal) || 0;
@@ -795,6 +914,9 @@
       calculateCashChange();
     }
 
+    // =========================================================================
+    // 2. KONFIGURASI PWA STANDALONE ("Kasir")
+    // =========================================================================
     let deferredPrompt = null;
     function setupProgressiveWebApp() {
       const iconCanvas = document.createElement('canvas');
@@ -808,10 +930,10 @@
       ctx.fillStyle = '#ffffff';
       ctx.font = '900 135px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('KASIR', 256, 265);
-      ctx.font = '700 60px sans-serif';
-      ctx.fillStyle = '#bae6fd';
-      ctx.fillText('QRIS POS', 256, 365);
+      ctx.fillText('KASIR', 256, 250);
+      ctx.font = '800 62px sans-serif';
+      ctx.fillStyle = '#fde047';
+      ctx.fillText('GENTONG', 256, 360);
       const iconUrl = iconCanvas.toDataURL('image/png');
 
       const linkIcon = document.createElement('link');
@@ -826,9 +948,9 @@
       document.head.appendChild(favIcon);
 
       const manifest = {
-        name: 'Kasir',
+        name: 'Kasir - Warung Gentong',
         short_name: 'Kasir',
-        description: 'Aplikasi Kasir & QRIS Dinamis',
+        description: 'Aplikasi Kasir Warung & Catering Gentong',
         start_url: window.location.href,
         display: 'standalone',
         background_color: '#f1f5f9',
@@ -873,43 +995,7 @@
     }
 
     // =========================================================================
-    // 1. STATE & DATA PENYIMPANAN LOKAL HP
-    // =========================================================================
-    const DEFAULT_ANDRI_QRIS = "00020101021126610014COM.GO-JEK.WWW01189360091436462187680210G6462187680303UMI51440014ID.CO.QRIS.WWW0215ID10254187806030303UMI5204804153033605802ID5910Qris Andri6008SIDOARJO61056123462070703A0163043275";
-
-    let products = JSON.parse(localStorage.getItem('andri_pos_products')) || [
-      { id: 1, name: 'Paket Hemat 1', price: 15000 },
-      { id: 2, name: 'Paket Spesial 2', price: 25000 },
-      { id: 3, name: 'Minuman Dingin', price: 8000 },
-      { id: 4, name: 'Snack / Camilan', price: 10000 },
-      { id: 5, name: 'Item Tambahan', price: 5000 },
-      { id: 6, name: 'Paket Keluarga', price: 50000 }
-    ];
-
-    let cart = [];
-    let keypadValue = '';
-    let transactions = JSON.parse(localStorage.getItem('andri_pos_history')) || [];
-    let rawQrisString = localStorage.getItem('andri_qris_raw') || DEFAULT_ANDRI_QRIS;
-    let savedQrisImage = localStorage.getItem('andri_qris_img') || '';
-
-    let storeName = localStorage.getItem('andri_store_name') || 'QRIS ANDRI';
-    let storeDesc = localStorage.getItem('andri_store_desc') || 'Warung & Layanan Kasir Digital';
-    let storeAddress = localStorage.getItem('andri_store_address') || 'NMID: ID1025418780603 • A01';
-    let storeCashier = localStorage.getItem('andri_store_cashier') || 'Andri';
-    let storeFooter = localStorage.getItem('andri_store_footer') || 'Terima kasih atas kunjungan Anda!';
-    let storeLogo = localStorage.getItem('andri_store_logo') || '';
-
-    let currentQrisMode = 'dynamic';
-    let activeReceiptTrx = null;
-    let btDevice = null;
-    let btCharacteristic = null;
-
-    function formatRupiah(num) {
-      return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
-    }
-
-    // =========================================================================
-    // 2. KUSTOMISASI STRUK & LOGO
+    // 3. KUSTOMISASI STRUK & FOTO WAJAH BAWAAN
     // =========================================================================
     function handleLogoUpload(event) {
       const file = event.target.files[0];
@@ -918,18 +1004,30 @@
       reader.onload = function(e) {
         resizeAndSaveLogo(e.target.result, function(compressedDataUrl) {
           storeLogo = compressedDataUrl;
-          try { localStorage.setItem('andri_store_logo', storeLogo); } catch (err) {}
+          try { localStorage.setItem('gentong_store_logo', storeLogo); } catch (err) {}
           updateLogoPreviewUI();
         });
       };
       reader.readAsDataURL(file);
     }
 
+    function resetDefaultLogo() {
+      storeLogo = DEFAULT_GENTONG_FACE_LOGO;
+      localStorage.setItem('gentong_store_logo', storeLogo);
+      updateLogoPreviewUI();
+    }
+
+    function removeStoreLogo() {
+      storeLogo = '';
+      localStorage.setItem('gentong_store_logo', '');
+      updateLogoPreviewUI();
+    }
+
     function resizeAndSaveLogo(dataUrl, callback) {
       const img = new Image();
       img.onload = function() {
         const canvas = document.createElement('canvas');
-        const maxDim = 240;
+        const maxDim = 220;
         let w = img.width, h = img.height;
         if (w > maxDim || h > maxDim) {
           if (w > h) { h = Math.round((h * maxDim) / w); w = maxDim; }
@@ -939,15 +1037,9 @@
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, w, h);
         ctx.drawImage(img, 0, 0, w, h);
-        callback(canvas.toDataURL('image/png'));
+        callback(canvas.toDataURL('image/jpeg', 0.85));
       };
       img.src = dataUrl;
-    }
-
-    function removeStoreLogo() {
-      storeLogo = '';
-      localStorage.removeItem('andri_store_logo');
-      updateLogoPreviewUI();
     }
 
     function updateLogoPreviewUI() {
@@ -962,24 +1054,23 @@
     }
 
     function saveStoreInfo() {
-      storeName = document.getElementById('store-name-input').value.trim() || 'QRIS ANDRI';
+      storeName = document.getElementById('store-name-input').value.trim() || 'WARUNG & CATERING GENTONG';
       storeDesc = document.getElementById('store-desc-input').value.trim();
       storeAddress = document.getElementById('store-address-input').value.trim();
       storeCashier = document.getElementById('store-cashier-input').value.trim();
       storeFooter = document.getElementById('store-footer-input').value.trim();
 
-      localStorage.setItem('andri_store_name', storeName);
-      localStorage.setItem('andri_store_desc', storeDesc);
-      localStorage.setItem('andri_store_address', storeAddress);
-      localStorage.setItem('andri_store_cashier', storeCashier);
-      localStorage.setItem('andri_store_footer', storeFooter);
+      localStorage.setItem('gentong_store_name', storeName);
+      localStorage.setItem('gentong_store_desc', storeDesc);
+      localStorage.setItem('gentong_store_address', storeAddress);
+      localStorage.setItem('gentong_store_cashier', storeCashier);
+      localStorage.setItem('gentong_store_footer', storeFooter);
 
       document.getElementById('top-store-title').textContent = storeName;
-      document.getElementById('qris-page-title').textContent = storeName;
     }
 
     // =========================================================================
-    // 3. EDITOR STRUK & BLUETOOTH PRINTER
+    // 4. EDITOR STRUK & CETAK BLUETOOTH (TERMASUK CETAK FOTO WAJAH FLOYD-STEINBERG)
     // =========================================================================
     function toggleReceiptEditor() {
       const panel = document.getElementById('receipt-editor-panel');
@@ -1020,7 +1111,7 @@
       activeReceiptTrx.customFooter = document.getElementById('edit-receipt-footer').value.trim();
       activeReceiptTrx.showLogo = document.getElementById('edit-show-logo').checked;
 
-      localStorage.setItem('andri_pos_history', JSON.stringify(transactions));
+      localStorage.setItem('gentong_pos_history', JSON.stringify(transactions));
       renderReceiptPreviewDOM(activeReceiptTrx);
       renderHistoryAndAnalytics();
     }
@@ -1030,7 +1121,7 @@
       document.getElementById('edit-receipt-id').value = trx.id || '';
       document.getElementById('edit-receipt-date').value = trx.date || new Date().toLocaleDateString('id-ID');
       document.getElementById('edit-receipt-time').value = trx.time || '';
-      document.getElementById('edit-receipt-customer').value = trx.customer !== undefined ? trx.customer : (storeCashier || 'Andri');
+      document.getElementById('edit-receipt-customer').value = trx.customer !== undefined ? trx.customer : (storeCashier || 'Gentong');
       document.getElementById('edit-receipt-desc').value = trx.customDesc !== undefined ? trx.customDesc : storeDesc;
       document.getElementById('edit-receipt-note').value = trx.note || '';
       document.getElementById('edit-receipt-footer').value = trx.customFooter !== undefined ? trx.customFooter : storeFooter;
@@ -1053,11 +1144,11 @@
         logoContainer.classList.add('hidden'); logoContainer.classList.remove('flex');
       }
 
-      document.getElementById('receipt-store-name').textContent = storeName || 'QRIS ANDRI';
+      document.getElementById('receipt-store-name').textContent = storeName || 'WARUNG & CATERING GENTONG';
       const descText = trx.customDesc !== undefined ? trx.customDesc : storeDesc;
       const descEl = document.getElementById('receipt-store-desc');
       if (descText) { descEl.textContent = descText; descEl.classList.remove('hidden'); } else { descEl.classList.add('hidden'); }
-      document.getElementById('receipt-store-address').textContent = storeAddress || 'NMID: ID1025418780603 • A01';
+      document.getElementById('receipt-store-address').textContent = storeAddress || 'Graha Sakinah 4 Pondok Jati Blok BN No. 5, Telp 082114000793';
 
       document.getElementById('receipt-id').textContent = trx.id;
       document.getElementById('receipt-time').textContent = `${trx.date || ''} ${trx.time || ''}`.trim();
@@ -1106,7 +1197,8 @@
       btn.className = 'bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg transition';
     }
 
-    function imageToEscPosRasterBytes(dataUrl, maxWidthPx = 200) {
+    // Konversi Foto Wajah dengan Floyd-Steinberg Dithering agar wajah tercetak jelas di Printer Thermal
+    function imageToEscPosRasterBytes(dataUrl, maxWidthPx = 160) {
       return new Promise((resolve) => {
         const img = new Image();
         img.onload = function() {
@@ -1120,17 +1212,34 @@
           ctx.drawImage(img, 0, 0, w, h);
 
           const imgData = ctx.getImageData(0, 0, w, h).data;
+          const gray = new Float32Array(w * h);
+          for (let i = 0; i < w * h; i++) {
+            gray[i] = 0.299 * imgData[i * 4] + 0.587 * imgData[i * 4 + 1] + 0.114 * imgData[i * 4 + 2];
+          }
+
+          // Floyd-Steinberg Dithering untuk wajah
+          for (let y = 0; y < h; y++) {
+            for (let x = 0; x < w; x++) {
+              const idx = y * w + x;
+              const oldPixel = gray[idx];
+              const newPixel = oldPixel < 135 ? 0 : 255;
+              gray[idx] = newPixel;
+              const err = oldPixel - newPixel;
+              if (x + 1 < w) gray[idx + 1] += err * (7 / 16);
+              if (x - 1 >= 0 && y + 1 < h) gray[idx + w - 1] += err * (3 / 16);
+              if (y + 1 < h) gray[idx + w] += err * (5 / 16);
+              if (x + 1 < w && y + 1 < h) gray[idx + w + 1] += err * (1 / 16);
+            }
+          }
+
           const bytesPerRow = w / 8;
           const rasterData = new Uint8Array(bytesPerRow * h);
-
           for (let y = 0; y < h; y++) {
             for (let xByte = 0; xByte < bytesPerRow; xByte++) {
               let byteVal = 0;
               for (let bit = 0; bit < 8; bit++) {
                 const x = xByte * 8 + bit;
-                const idx = (y * w + x) * 4;
-                const gray = 0.299 * imgData[idx] + 0.587 * imgData[idx + 1] + 0.114 * imgData[idx + 2];
-                if (gray < 150) byteVal |= (1 << (7 - bit));
+                if (gray[y * w + x] < 128) byteVal |= (1 << (7 - bit));
               }
               rasterData[y * bytesPerRow + xByte] = byteVal;
             }
@@ -1218,12 +1327,12 @@
 
         const activeLogo = trx.customLogo || storeLogo;
         if (activeLogo && (trx.showLogo !== false)) {
-          const logoBytes = await imageToEscPosRasterBytes(activeLogo, 184);
+          const logoBytes = await imageToEscPosRasterBytes(activeLogo, 144);
           if (logoBytes) { await sendEscPosBytes(logoBytes); await sendEscPosBytes(encoder.encode('\n')); }
         }
 
         let receiptText = '';
-        receiptText += ESC + 'a' + '\x01' + ESC + '!' + '\x10' + (storeName || 'QRIS ANDRI') + '\n' + ESC + '!' + '\x00';
+        receiptText += ESC + 'a' + '\x01' + ESC + '!' + '\x10' + (storeName || 'WARUNG GENTONG') + '\n' + ESC + '!' + '\x00';
         if (storeDesc) receiptText += storeDesc + '\n';
         if (storeAddress) receiptText += storeAddress + '\n';
         receiptText += '--------------------------------\n';
@@ -1260,79 +1369,232 @@
     function testPrintBluetooth() {
       openReceiptModal({
         id: 'TEST-001', date: new Date().toLocaleDateString('id-ID'), time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-        customer: storeCashier || 'Andri', method: 'QRIS GoPay', itemDetails: [{ name: 'Contoh Produk / Menu', qty: 1, price: 15000 }],
-        tax: 0, total: 15000, note: 'Contoh deskripsi atau catatan pesanan pelanggan.'
+        customer: storeCashier || 'Gentong', method: 'QRIS GoPay',
+        itemDetails: [
+          { name: 'Nasi Goreng Jawa', qty: 1, price: 17500 },
+          { name: 'Teh Jumbo', qty: 1, price: 8000 }
+        ],
+        tax: 0, total: 25500, note: 'Tes Cetak Struk Warung & Catering Gentong'
       });
     }
 
     // =========================================================================
-    // 4. EXPORT EXCEL & QRIS EMVCo
+    // 5. EXPORT EXCEL DENGAN TABEL BERWARNA, BORDER RAPI, & FORMAT RUPIAH
     // =========================================================================
-    function autoFitColumns(worksheet, aoaData) {
-      const colWidths = [];
-      aoaData.forEach(row => {
-        if (!row) return;
-        row.forEach((cell, colIdx) => {
-          const valStr = cell !== null && cell !== undefined ? String(cell) : '';
-          const len = Math.max(valStr.length + 3, 10);
-          if (!colWidths[colIdx] || len > colWidths[colIdx]) colWidths[colIdx] = Math.min(len, 48);
-        });
-      });
-      worksheet['!cols'] = colWidths.map(w => ({ wch: w }));
+    function createStyledSheet(aoaData, config) {
+      const ws = XLSX.utils.aoa_to_sheet(aoaData);
+      const range = XLSX.utils.decode_range(ws['!ref']);
+
+      const borderThin = {
+        top: { style: 'thin', color: { rgb: 'CBD5E1' } },
+        bottom: { style: 'thin', color: { rgb: 'CBD5E1' } },
+        left: { style: 'thin', color: { rgb: 'CBD5E1' } },
+        right: { style: 'thin', color: { rgb: 'CBD5E1' } }
+      };
+
+      const borderDoubleBottom = {
+        top: { style: 'thin', color: { rgb: '0F172A' } },
+        bottom: { style: 'double', color: { rgb: '0F172A' } },
+        left: { style: 'thin', color: { rgb: 'CBD5E1' } },
+        right: { style: 'thin', color: { rgb: 'CBD5E1' } }
+      };
+
+      ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: config.colCount - 1 } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: config.colCount - 1 } }
+      ];
+
+      const lastColLetter = XLSX.utils.encode_col(config.colCount - 1);
+      const lastDataRow = config.totalRowIndex !== null ? config.totalRowIndex : range.e.r + 1;
+      ws['!autofilter'] = { ref: `A${config.headerRowIndex + 1}:${lastColLetter}${lastDataRow}` };
+
+      const rows = [];
+      for (let r = 0; r <= range.e.r; r++) {
+        if (r === 0) rows[r] = { hpt: 28 };
+        else if (r === 1) rows[r] = { hpt: 18 };
+        else if (r === config.headerRowIndex) rows[r] = { hpt: 26 };
+        else if (r === config.totalRowIndex) rows[r] = { hpt: 24 };
+        else rows[r] = { hpt: 20 };
+      }
+      ws['!rows'] = rows;
+
+      for (let R = range.s.r; R <= range.e.r; ++R) {
+        for (let C = range.s.c; C < config.colCount; ++C) {
+          const cellRef = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws[cellRef]) ws[cellRef] = { t: 's', v: '' };
+          const cell = ws[cellRef];
+
+          if (R === 0) {
+            cell.s = {
+              font: { name: 'Arial', sz: 13, bold: true, color: { rgb: 'FFFFFF' } },
+              fill: { fgColor: { rgb: config.themeColor || '0284C7' } },
+              alignment: { vertical: 'center', horizontal: 'center' }
+            };
+          } else if (R === 1) {
+            cell.s = {
+              font: { name: 'Arial', sz: 10, italic: true, color: { rgb: '334155' } },
+              fill: { fgColor: { rgb: 'E0F2FE' } },
+              alignment: { vertical: 'center', horizontal: 'center' }
+            };
+          } else if (R > 1 && R < config.headerRowIndex) {
+            cell.s = {
+              font: { name: 'Arial', sz: 10, bold: C === 0, color: { rgb: '1E293B' } },
+              alignment: { vertical: 'center', horizontal: 'left' }
+            };
+          } else if (R === config.headerRowIndex) {
+            cell.s = {
+              font: { name: 'Arial', sz: 10, bold: true, color: { rgb: 'FFFFFF' } },
+              fill: { fgColor: { rgb: config.headerBg || '0F172A' } },
+              border: borderThin,
+              alignment: { vertical: 'center', horizontal: 'center', wrapText: true }
+            };
+          } else if (R === config.totalRowIndex) {
+            const isCurr = config.currencyCols.includes(C);
+            const isCenter = config.centerCols.includes(C);
+            cell.s = {
+              font: { name: 'Arial', sz: 10, bold: true, color: { rgb: '065F46' } },
+              fill: { fgColor: { rgb: 'D1FAE5' } },
+              border: borderDoubleBottom,
+              alignment: { vertical: 'center', horizontal: isCurr ? 'right' : (isCenter ? 'center' : 'left') }
+            };
+            if (isCurr && typeof cell.v === 'number') cell.z = '"Rp" #,##0';
+          } else if (R > config.headerRowIndex && (config.totalRowIndex === null || R < config.totalRowIndex)) {
+            const isEvenRow = (R - config.headerRowIndex) % 2 === 0;
+            const isCurr = config.currencyCols.includes(C);
+            const isCenter = config.centerCols.includes(C);
+
+            cell.s = {
+              font: { name: 'Arial', sz: 10, bold: config.boldCols && config.boldCols.includes(C), color: { rgb: '1E293B' } },
+              fill: { fgColor: { rgb: isEvenRow ? 'F8FAFC' : 'FFFFFF' } },
+              border: borderThin,
+              alignment: { vertical: 'center', horizontal: isCurr ? 'right' : (isCenter ? 'center' : 'left'), wrapText: true }
+            };
+            if (isCurr && typeof cell.v === 'number') cell.z = '"Rp" #,##0';
+          }
+        }
+      }
+
+      ws['!cols'] = config.colWidths.map(w => ({ wch: w }));
+      return ws;
     }
 
     function exportToExcel() {
-      if (transactions.length === 0) { alert('Belum ada data transaksi penjualan untuk diekspor ke Excel!'); return; }
-      if (typeof XLSX === 'undefined') { alert('Library Excel belum termuat.'); return; }
+      if (transactions.length === 0) {
+        alert('Belum ada data transaksi penjualan untuk diekspor ke Excel!');
+        return;
+      }
+      if (typeof XLSX === 'undefined') {
+        alert('Library Excel belum termuat. Pastikan koneksi internet aktif.');
+        return;
+      }
 
       let totalOmzet = 0, totalSubtotal = 0, totalTax = 0, omzetQris = 0, trxQrisCount = 0, omzetCash = 0, trxCashCount = 0, totalItemsSold = 0;
       const productStats = {};
 
       transactions.forEach(t => {
-        totalSubtotal += (t.subtotal !== undefined ? t.subtotal : (t.total - (t.tax || 0)));
-        totalTax += (t.tax || 0); totalOmzet += t.total;
+        const sub = t.subtotal !== undefined ? t.subtotal : (t.total - (t.tax || 0));
+        const tx = t.tax || 0;
+        totalSubtotal += sub;
+        totalTax += tx;
+        totalOmzet += t.total;
+
         if (t.method && t.method.toLowerCase().includes('qris')) { omzetQris += t.total; trxQrisCount++; }
         else { omzetCash += t.total; trxCashCount++; }
 
         if (Array.isArray(t.itemDetails)) {
           t.itemDetails.forEach(item => {
             if (!productStats[item.name]) productStats[item.name] = { name: item.name, price: item.price, qty: 0, revenue: 0 };
-            productStats[item.name].qty += item.qty; productStats[item.name].revenue += item.qty * item.price;
+            productStats[item.name].qty += item.qty;
+            productStats[item.name].revenue += item.qty * item.price;
             totalItemsSold += item.qty;
           });
         }
       });
 
       const now = new Date();
+      const dateStamp = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+      const timeStamp = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+
       const summaryAOA = [
-        [`LAPORAN PENJUALAN & OMZET KASIR - ${storeName}`],
-        ['Identitas Merchant', `${storeName} (GoPay Merchant)`], ['Deskripsi Usaha', storeDesc || '-'], ['NMID / Terminal', 'ID1025418780603 / A01'], [],
-        ['KATEGORI RINGKASAN', 'JUMLAH TRANSAKSI', 'NILAI RUPIAH (Rp)'],
-        ['Pembayaran via QRIS GoPay', `${trxQrisCount} Transaksi`, omzetQris],
-        ['Pembayaran via Tunai (Cash)', `${trxCashCount} Transaksi`, omzetCash],
-        ['Total Porsi Terjual', `${totalItemsSold} Item`, '-'],
-        ['GRAND TOTAL OMZET', `${transactions.length} Transaksi`, totalOmzet]
+        [`LAPORAN RINGKASAN OMZET KASIR - ${storeName.toUpperCase()}`],
+        [`${storeAddress} • NMID: ID1026551667391 • Dicetak: ${dateStamp} ${timeStamp}`],
+        [],
+        ['NO', 'KATEGORI LAPORAN PENJUALAN', 'JUMLAH TRANSAKSI / ITEM', 'PERSENTASE', 'TOTAL NOMINAL (Rp)'],
+        [1, 'Pembayaran via QRIS GoPay', `${trxQrisCount} Transaksi`, totalOmzet > 0 ? `${((omzetQris / totalOmzet) * 100).toFixed(1)}%` : '0%', omzetQris],
+        [2, 'Pembayaran via Tunai (Cash)', `${trxCashCount} Transaksi`, totalOmzet > 0 ? `${((omzetCash / totalOmzet) * 100).toFixed(1)}%` : '0%', omzetCash],
+        [3, 'Penjualan Bersih (Subtotal Menu)', `${totalItemsSold} Porsi Terjual`, '-', totalSubtotal],
+        [4, 'Pajak PPN Terkumpul (11%)', '-', '-', totalTax],
+        ['', 'GRAND TOTAL OMZET MASUK', `${transactions.length} Transaksi`, '100%', totalOmzet]
       ];
-      const wsSummary = XLSX.utils.aoa_to_sheet(summaryAOA); autoFitColumns(wsSummary, summaryAOA);
+
+      const wsSummary = createStyledSheet(summaryAOA, {
+        colCount: 5, headerRowIndex: 3, totalRowIndex: 8,
+        themeColor: '0284C7', headerBg: '0369A1',
+        currencyCols: [4], centerCols: [0, 2, 3], boldCols: [1],
+        colWidths: [6, 36, 24, 15, 24]
+      });
 
       const sortedMenus = Object.values(productStats).sort((a, b) => b.qty - a.qty);
-      const topMenuAOA = [['PERINGKAT MENU PALING LAKU (TOP SELLING)'], [], ['Peringkat', 'Nama Menu', 'Harga (Rp)', 'Terjual (Porsi)', 'Pendapatan (Rp)']];
-      sortedMenus.forEach((m, idx) => topMenuAOA.push([idx + 1, m.name, m.price, m.qty, m.revenue]));
-      const wsTopMenus = XLSX.utils.aoa_to_sheet(topMenuAOA); autoFitColumns(wsTopMenus, topMenuAOA);
+      const topMenuAOA = [
+        [`TABEL ANALITIK MENU PALING LAKU (TOP SELLING) - ${storeName.toUpperCase()}`],
+        [`Diurutkan berdasarkan jumlah porsi terjual • Periode Cetak: ${dateStamp} ${timeStamp}`],
+        [],
+        ['RANK', 'NAMA MENU / PRODUK', 'HARGA SATUAN (Rp)', 'TERJUAL (PORSI)', 'TOTAL PENDAPATAN (Rp)', 'KONTRIBUSI (%)']
+      ];
 
-      const trxAOA = [['RINCIAN TRANSAKSI'], [], ['No', 'ID Struk', 'Tanggal', 'Kasir', 'Metode', 'Rincian Menu', 'Catatan', 'Total (Rp)']];
-      [...transactions].reverse().forEach((t, idx) => {
-        trxAOA.push([idx + 1, t.id, `${t.date || ''} ${t.time}`, t.customer || storeCashier, t.method, t.items, t.note || '-', t.total]);
+      sortedMenus.forEach((m, idx) => {
+        const share = totalSubtotal > 0 ? `${((m.revenue / totalSubtotal) * 100).toFixed(1)}%` : '0%';
+        topMenuAOA.push([idx + 1, m.name, m.price, m.qty, m.revenue, share]);
       });
-      const wsTrx = XLSX.utils.aoa_to_sheet(trxAOA); autoFitColumns(wsTrx, trxAOA);
+
+      topMenuAOA.push(['', 'TOTAL PENJUALAN MENU', '', totalItemsSold, totalSubtotal, '100%']);
+
+      const wsTopMenus = createStyledSheet(topMenuAOA, {
+        colCount: 6, headerRowIndex: 3, totalRowIndex: topMenuAOA.length - 1,
+        themeColor: 'D97706', headerBg: 'B45309',
+        currencyCols: [2, 4], centerCols: [0, 3, 5], boldCols: [1],
+        colWidths: [8, 34, 20, 18, 24, 16]
+      });
+
+      const trxAOA = [
+        [`JURNAL RINCIAN TRANSAKSI PENJUALAN - ${storeName.toUpperCase()}`],
+        [`${storeAddress} • Dicetak: ${dateStamp} ${timeStamp}`],
+        [],
+        ['NO', 'ID STRUK', 'TANGGAL', 'JAM', 'KASIR / PLG', 'METODE BAYAR', 'RINCIAN MENU DIBELI', 'QTY ITEM', 'SUBTOTAL (Rp)', 'PPN 11% (Rp)', 'TOTAL BAYAR (Rp)', 'CATATAN']
+      ];
+
+      [...transactions].reverse().forEach((t, idx) => {
+        const sub = t.subtotal !== undefined ? t.subtotal : (t.total - (t.tax || 0));
+        const tx = t.tax || 0;
+        const itemCount = Array.isArray(t.itemDetails) ? t.itemDetails.reduce((s, i) => s + i.qty, 0) : 1;
+
+        trxAOA.push([
+          idx + 1, t.id, t.date || dateStamp, t.time,
+          t.customer || storeCashier || '-', t.method, t.items,
+          itemCount, sub, tx, t.total, t.note || '-'
+        ]);
+      });
+
+      trxAOA.push(['', 'GRAND TOTAL PENJUALAN', '', '', '', '', '', totalItemsSold, totalSubtotal, totalTax, totalOmzet, '']);
+
+      const wsTrx = createStyledSheet(trxAOA, {
+        colCount: 12, headerRowIndex: 3, totalRowIndex: trxAOA.length - 1,
+        themeColor: '059669', headerBg: '047857',
+        currencyCols: [8, 9, 10], centerCols: [0, 1, 2, 3, 5, 7], boldCols: [1, 10],
+        colWidths: [6, 15, 14, 9, 16, 16, 40, 11, 18, 15, 20, 24]
+      });
 
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, wsSummary, 'Ringkasan Omzet');
-      XLSX.utils.book_append_sheet(wb, wsTopMenus, 'Menu Terlaris');
-      XLSX.utils.book_append_sheet(wb, wsTrx, 'Rincian Transaksi');
-      XLSX.writeFile(wb, `Laporan_Kasir_${now.toISOString().slice(0, 10)}.xlsx`);
+      XLSX.utils.book_append_sheet(wb, wsTopMenus, 'Tabel Menu Terlaris');
+      XLSX.utils.book_append_sheet(wb, wsTrx, 'Tabel Rincian Transaksi');
+
+      XLSX.writeFile(wb, `Laporan_Warung_Gentong_${now.toISOString().slice(0, 10)}.xlsx`);
     }
 
+    // =========================================================================
+    // 6. ALGORITMA QRIS DINAMIS EMVCo
+    // =========================================================================
     function crc16CCITT(str) {
       let crc = 0xFFFF;
       for (let i = 0; i < str.length; i++) {
@@ -1365,7 +1627,7 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         savedQrisImage = e.target.result;
-        try { localStorage.setItem('andri_qris_img', savedQrisImage); } catch (err) {}
+        try { localStorage.setItem('gentong_qris_img', savedQrisImage); } catch (err) {}
         const img = new Image();
         img.onload = function() {
           const canvas = document.getElementById('qr-reader-canvas');
@@ -1376,7 +1638,7 @@
           if (code && code.data && code.data.startsWith('000201')) {
             rawQrisString = code.data;
             document.getElementById('qris-raw-string').value = rawQrisString;
-            localStorage.setItem('andri_qris_raw', rawQrisString);
+            localStorage.setItem('gentong_qris_raw', rawQrisString);
             updateSetupStatusUI();
           }
           if (!document.getElementById('qris-modal').classList.contains('hidden')) renderQrisInModal(getCartTotals().total);
@@ -1388,62 +1650,90 @@
 
     function saveQrisSettings() {
       rawQrisString = document.getElementById('qris-raw-string').value.trim();
-      localStorage.setItem('andri_qris_raw', rawQrisString);
+      localStorage.setItem('gentong_qris_raw', rawQrisString);
       updateSetupStatusUI();
     }
 
     function updateSetupStatusUI() {
       const dot = document.getElementById('qris-dot');
       const text = document.getElementById('qris-status-text');
-      const alertBanner = document.getElementById('setup-alert');
       if (rawQrisString && rawQrisString.startsWith('000201')) {
-        dot.className = 'w-2 h-2 rounded-full bg-emerald-400'; text.textContent = 'QRIS Aktif'; alertBanner.classList.add('hidden');
+        dot.className = 'w-2 h-2 rounded-full bg-emerald-400'; text.textContent = 'QRIS Aktif';
       } else {
-        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse'; text.textContent = 'Setup QR'; alertBanner.classList.remove('hidden');
+        dot.className = 'w-2 h-2 rounded-full bg-amber-400 animate-pulse'; text.textContent = 'Setup QR';
       }
     }
 
     // =========================================================================
-    // 5. KATALOG PRODUK (DENGAN TOMBOL - / + LANGSUNG TANPA OVERLAPPING)
+    // 7. FILTER KATEGORI & KATALOG PRODUK WARUNG GENTONG
     // =========================================================================
+    function renderCategories() {
+      const cats = ['Semua', 'Nasi Goreng', 'Mie / Bihun', 'Fu Yung Hai', 'Olahan Ayam', 'Sayur', 'Kwetiaw', 'I Fumie', 'Ekstra', 'Minuman'];
+      const container = document.getElementById('category-chips');
+      container.innerHTML = '';
+
+      cats.forEach(c => {
+        const active = selectedCategory === c;
+        const btn = document.createElement('button');
+        btn.className = active
+          ? 'px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-sky-600 text-white shadow-xs shrink-0 transition'
+          : 'px-3.5 py-1.5 rounded-full text-xs font-bold bg-white text-slate-600 border border-slate-200 shrink-0 active:bg-slate-100 transition';
+        btn.textContent = c;
+        btn.onclick = () => {
+          selectedCategory = c;
+          renderCategories();
+          renderProducts();
+        };
+        container.appendChild(btn);
+      });
+    }
+
     function renderProducts() {
       const keyword = document.getElementById('search-input').value.toLowerCase();
       const grid = document.getElementById('product-grid');
       grid.innerHTML = '';
 
-      products.filter(p => p.name.toLowerCase().includes(keyword)).forEach(p => {
-        const inCart = cart.find(i => i.id === p.id);
-        const qtyBadge = inCart ? `<span class="bg-sky-600 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0">${inCart.qty}x</span>` : '';
+      products
+        .filter(p => {
+          const matchCat = selectedCategory === 'Semua' || (p.cat || 'Lainnya') === selectedCategory;
+          const matchKey = p.name.toLowerCase().includes(keyword) || (p.cat && p.cat.toLowerCase().includes(keyword));
+          return matchCat && matchKey;
+        })
+        .forEach(p => {
+          const inCart = cart.find(i => i.id === p.id);
+          const qtyBadge = inCart ? `<span class="bg-sky-600 text-white text-[11px] font-extrabold px-2 py-0.5 rounded-full shrink-0">${inCart.qty}x</span>` : '';
 
-        const card = document.createElement('div');
-        card.className = `bg-white p-3.5 rounded-2xl border ${inCart ? 'border-sky-500 ring-1 ring-sky-500 bg-sky-50/20' : 'border-slate-200'} shadow-xs flex flex-col justify-between min-h-[104px] transition`;
+          const card = document.createElement('div');
+          card.className = `bg-white p-3.5 rounded-2xl border ${inCart ? 'border-sky-500 ring-1 ring-sky-500 bg-sky-50/20' : 'border-slate-200'} shadow-xs flex flex-col justify-between min-h-[108px] transition`;
 
-        // Kontrol Bawah Kartu: Jika sudah ada di keranjang, tampilkan tombol [-] qty [+] langsung
-        const actionControls = inCart
-          ? `<div class="flex items-center bg-slate-100 rounded-xl p-0.5 border border-slate-200" onclick="event.stopPropagation()">
-               <button onclick="changeQty(${p.id}, -1)" class="w-7 h-7 rounded-lg bg-white text-rose-600 font-black text-sm shadow-2xs active:scale-90 flex items-center justify-center">-</button>
-               <span class="w-6 text-center text-xs font-extrabold text-slate-800">${inCart.qty}</span>
-               <button onclick="changeQty(${p.id}, 1)" class="w-7 h-7 rounded-lg bg-sky-600 text-white font-black text-sm shadow-2xs active:scale-90 flex items-center justify-center">+</button>
-             </div>`
-          : `<button onclick="event.stopPropagation(); addToCart({id: ${p.id}, name: '${p.name.replace(/'/g, "\\'")}', price: ${p.price}})" class="w-8 h-8 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 font-extrabold text-base flex items-center justify-center border border-sky-200/60">+</button>`;
+          const actionControls = inCart
+            ? `<div class="flex items-center bg-slate-100 rounded-xl p-0.5 border border-slate-200" onclick="event.stopPropagation()">
+                 <button onclick="changeQty(${p.id}, -1)" class="w-7 h-7 rounded-lg bg-white text-rose-600 font-black text-sm shadow-2xs active:scale-90 flex items-center justify-center">-</button>
+                 <span class="w-6 text-center text-xs font-extrabold text-slate-800">${inCart.qty}</span>
+                 <button onclick="changeQty(${p.id}, 1)" class="w-7 h-7 rounded-lg bg-sky-600 text-white font-black text-sm shadow-2xs active:scale-90 flex items-center justify-center">+</button>
+               </div>`
+            : `<button onclick="event.stopPropagation(); addToCart({id: ${p.id}, name: '${p.name.replace(/'/g, "\\'")}', price: ${p.price}})" class="w-8 h-8 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-600 font-extrabold text-base flex items-center justify-center border border-sky-200/60">+</button>`;
 
-        card.onclick = () => addToCart(p);
-        card.innerHTML = `
-          <div class="flex justify-between items-start gap-1.5">
-            <h4 class="font-bold text-slate-800 text-xs leading-snug break-words">${p.name}</h4>
-            ${qtyBadge}
-          </div>
-          <div class="mt-3 flex justify-between items-center gap-1">
-            <span class="text-sky-600 font-extrabold text-sm">${formatRupiah(p.price)}</span>
-            ${actionControls}
-          </div>
-        `;
-        grid.appendChild(card);
-      });
+          card.onclick = () => addToCart(p);
+          card.innerHTML = `
+            <div>
+              <div class="flex justify-between items-start gap-1">
+                <span class="text-[9px] font-extrabold uppercase tracking-wider text-slate-400">${p.cat || 'Menu'}</span>
+                ${qtyBadge}
+              </div>
+              <h4 class="font-bold text-slate-800 text-xs leading-snug break-words mt-0.5">${p.name}</h4>
+            </div>
+            <div class="mt-3 flex justify-between items-center gap-1">
+              <span class="text-sky-600 font-extrabold text-sm">${formatRupiah(p.price)}</span>
+              ${actionControls}
+            </div>
+          `;
+          grid.appendChild(card);
+        });
     }
 
     // =========================================================================
-    // 6. MODAL KELOLA / EDIT MENU (TAMBAH, EDIT HARGA/NAMA, HAPUS)
+    // 8. MODAL KELOLA / EDIT MENU (TAMBAH, EDIT HARGA/NAMA, HAPUS, RESET)
     // =========================================================================
     function openProductModal() {
       document.getElementById('new-prod-name').value = '';
@@ -1459,10 +1749,19 @@
       document.getElementById('product-modal').classList.remove('flex');
     }
 
+    function resetDefaultMenus() {
+      if (confirm('Kembalikan daftar menu ke 53 menu asli Warung & Catering Gentong?')) {
+        products = JSON.parse(JSON.stringify(DEFAULT_GENTONG_MENUS));
+        localStorage.setItem('gentong_pos_products', JSON.stringify(products));
+        renderManageProductsList();
+        renderProducts();
+      }
+    }
+
     function renderManageProductsList() {
       const list = document.getElementById('manage-product-list');
       const countBadge = document.getElementById('manage-menu-count');
-      countBadge.textContent = `${products.length} Menu`;
+      countBadge.textContent = products.length;
       list.innerHTML = '';
 
       if (products.length === 0) {
@@ -1475,7 +1774,10 @@
         itemRow.className = 'pt-2.5 first:pt-0 flex items-center gap-2';
         itemRow.innerHTML = `
           <div class="flex-1 space-y-1">
-            <input type="text" value="${p.name.replace(/"/g, '&quot;')}" onchange="updateExistingProductName(${p.id}, this.value)" class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500" placeholder="Nama Menu">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[9px] font-bold bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded">${p.cat || 'Menu'}</span>
+              <input type="text" value="${p.name.replace(/"/g, '&quot;')}" onchange="updateExistingProductName(${p.id}, this.value)" class="flex-1 px-2 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-800 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500" placeholder="Nama Menu">
+            </div>
             <div class="relative flex items-center">
               <span class="absolute left-2.5 text-[11px] font-bold text-slate-400">Rp</span>
               <input type="text" inputmode="numeric" value="${Number(p.price).toLocaleString('id-ID')}" oninput="formatAndSaveExistingPrice(${p.id}, this)" class="w-full pl-8 pr-2.5 py-1 bg-slate-50 border border-slate-200 rounded-lg text-xs font-extrabold text-sky-700 focus:bg-white focus:outline-none focus:ring-1 focus:ring-sky-500" placeholder="Harga">
@@ -1495,7 +1797,7 @@
       const prod = products.find(p => p.id === id);
       if (prod) {
         prod.name = clean;
-        localStorage.setItem('andri_pos_products', JSON.stringify(products));
+        localStorage.setItem('gentong_pos_products', JSON.stringify(products));
         const inCart = cart.find(c => c.id === id);
         if (inCart) inCart.name = clean;
         updateCartUI();
@@ -1510,7 +1812,7 @@
       const prod = products.find(p => p.id === id);
       if (prod && num > 0) {
         prod.price = num;
-        localStorage.setItem('andri_pos_products', JSON.stringify(products));
+        localStorage.setItem('gentong_pos_products', JSON.stringify(products));
         const inCart = cart.find(c => c.id === id);
         if (inCart) inCart.price = num;
         updateCartUI();
@@ -1519,13 +1821,14 @@
 
     function saveNewProduct() {
       const name = document.getElementById('new-prod-name').value.trim();
+      const cat = document.getElementById('new-prod-cat').value || 'Lainnya';
       const price = parseInt(document.getElementById('new-prod-price').value) || 0;
       if (!name || price <= 0) {
         alert('Masukkan nama menu dan harga yang valid!');
         return;
       }
-      products.push({ id: Date.now(), name, price });
-      localStorage.setItem('andri_pos_products', JSON.stringify(products));
+      products.unshift({ id: Date.now(), cat, name, price });
+      localStorage.setItem('gentong_pos_products', JSON.stringify(products));
 
       document.getElementById('new-prod-name').value = '';
       document.getElementById('new-prod-price-formatted').value = '';
@@ -1539,14 +1842,14 @@
       if (confirm('Yakin ingin menghapus menu ini dari katalog?')) {
         products = products.filter(p => p.id !== id);
         cart = cart.filter(c => c.id !== id);
-        localStorage.setItem('andri_pos_products', JSON.stringify(products));
+        localStorage.setItem('gentong_pos_products', JSON.stringify(products));
         renderManageProductsList();
         updateCartUI();
       }
     }
 
     // =========================================================================
-    // 7. KERANJANG & RINCIAN PESANAN
+    // 9. KERANJANG & RINCIAN PESANAN
     // =========================================================================
     function addToCart(product) {
       const existing = cart.find(i => i.id === product.id);
@@ -1631,7 +1934,7 @@
     }
 
     // =========================================================================
-    // 8. KEYPAD, PEMBAYARAN TUNAI & QRIS
+    // 10. KEYPAD, PEMBAYARAN TUNAI & QRIS
     // =========================================================================
     function pressKey(key) {
       if (key === 'BACK') keypadValue = keypadValue.slice(0, -1);
@@ -1645,7 +1948,7 @@
     function addKeypadToCart() {
       const val = parseInt(keypadValue);
       if (!val || val <= 0) return;
-      const note = document.getElementById('keypad-note').value.trim() || 'Item Custom';
+      const note = document.getElementById('keypad-note').value.trim() || 'Item Custom / Catering';
       cart.push({ id: Date.now(), name: note, price: val, qty: 1 });
       keypadValue = ''; document.getElementById('keypad-note').value = '';
       document.getElementById('keypad-display').textContent = 'Rp 0';
@@ -1748,7 +2051,7 @@
         btnDyn.className = 'py-2.5 text-xs font-extrabold rounded-xl bg-white text-sky-700 shadow-xs';
         btnStat.className = 'py-2.5 text-xs font-bold rounded-xl text-slate-600';
         dynBox.classList.remove('hidden'); statBox.classList.add('hidden');
-        badge.textContent = '✓ Nominal otomatis terkunci saat di-scan'; badge.className = 'block text-xs font-bold text-emerald-600 mt-1';
+        badge.textContent = '✓ Nominal otomatis terkunci ke WARUNG GENTONG'; badge.className = 'block text-xs font-bold text-emerald-600 mt-1';
 
         const qrContainer = document.getElementById('qrcode-canvas');
         qrContainer.innerHTML = '';
@@ -1760,7 +2063,7 @@
           new QRCode(qrContainer, { text: payload, width: 280, height: 280, correctLevel: QRCode.CorrectLevel.M });
         } else {
           warn.classList.remove('hidden');
-          new QRCode(qrContainer, { text: `SIMULASI-QRIS-ANDRI-${total}`, width: 260, height: 260 });
+          new QRCode(qrContainer, { text: `SIMULASI-WARUNG-GENTONG-${total}`, width: 260, height: 260 });
         }
       } else {
         btnStat.className = 'py-2.5 text-xs font-extrabold rounded-xl bg-white text-sky-700 shadow-xs';
@@ -1788,7 +2091,7 @@
         id: 'TRX-' + now.getTime().toString().slice(-5),
         date: now.toLocaleDateString('id-ID'),
         time: now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
-        customer: storeCashier || 'Andri',
+        customer: storeCashier || 'Gentong',
         items: cart.map(i => `${i.name} (${i.qty}x)`).join(', '),
         itemDetails: cart.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
         subtotal, tax, total, method,
@@ -1798,14 +2101,14 @@
       };
 
       transactions.unshift(trx);
-      localStorage.setItem('andri_pos_history', JSON.stringify(transactions));
+      localStorage.setItem('gentong_pos_history', JSON.stringify(transactions));
       clearCart(); closeQrisModal(); closeOrderReviewPage();
       renderHistoryAndAnalytics();
       openReceiptModal(trx);
     }
 
     // =========================================================================
-    // 9. LAPORAN OMZET, TOP MENU & NAVIGASI
+    // 11. LAPORAN OMZET, TOP MENU & NAVIGASI
     // =========================================================================
     function renderHistoryAndAnalytics() {
       document.getElementById('history-count').textContent = transactions.length;
@@ -1893,7 +2196,7 @@
 
     function clearHistory() {
       if (confirm('Hapus semua riwayat transaksi dan reset laporan omzet?')) {
-        transactions = []; localStorage.removeItem('andri_pos_history');
+        transactions = []; localStorage.removeItem('gentong_pos_history');
         renderHistoryAndAnalytics();
       }
     }
@@ -1909,7 +2212,9 @@
 
     window.onload = function() {
       setupProgressiveWebApp();
-      if (!localStorage.getItem('andri_qris_raw')) localStorage.setItem('andri_qris_raw', DEFAULT_ANDRI_QRIS);
+      if (!localStorage.getItem('gentong_qris_raw')) localStorage.setItem('gentong_qris_raw', DEFAULT_GENTONG_QRIS);
+      if (localStorage.getItem('gentong_store_logo') === null) localStorage.setItem('gentong_store_logo', DEFAULT_GENTONG_FACE_LOGO);
+
       document.getElementById('qris-raw-string').value = rawQrisString;
       document.getElementById('store-name-input').value = storeName;
       document.getElementById('store-desc-input').value = storeDesc;
@@ -1917,9 +2222,9 @@
       document.getElementById('store-cashier-input').value = storeCashier;
       document.getElementById('store-footer-input').value = storeFooter;
       document.getElementById('top-store-title').textContent = storeName;
-      document.getElementById('qris-page-title').textContent = storeName;
 
       updateLogoPreviewUI();
+      renderCategories();
       renderProducts();
       updateCartUI();
       renderHistoryAndAnalytics();
